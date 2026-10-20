@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+            <div th:replace="~{fragments/layout.html :: page-header}"></div>
+
+            <div class="card">
+                <h2>Quản lý báo cáo</h2>
+                <p class="muted">SV nhóm trưởng nộp báo cáo; GVHD / Trưởng khoa xem và tải về.</p>
+            </div>
+
+            <div class="card" sec:authorize="hasAuthority('SUBMISSION_CREATE')">
+                <h3>Đối với sinh viên</h3>
+                <p>Truy cập nhóm của bạn để nộp báo cáo:</p>
+                <a class="btn btn-primary" th:href="@{/groups}">Vào Nhóm của tôi</a>
+            </div>
+
+            <div class="card" sec:authorize="hasAuthority('REPORT_VIEW') and !hasAuthority('SUBMISSION_CREATE')">
+                <h3>Đối với GVHD / Trưởng khoa</h3>
+                <p>Chọn đề tài để xem các báo cáo:</p>
+                <a class="btn btn-primary" th:href="@{/topics}">Vào danh sách đề tài</a>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

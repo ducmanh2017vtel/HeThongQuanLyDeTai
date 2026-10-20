@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+            <div th:replace="~{fragments/layout.html :: page-header}"></div>
+
+            <div class="card">
+                <h3>Nộp báo cáo — Nhóm <span th:text="${group.groupCode}"></span></h3>
+                <p class="muted">Đề tài: <strong th:text="${group.topic != null ? group.topic.topicName : '—'}"></strong></p>
+            </div>
+
+            <form class="card"
+                  th:action="@{/reports/upload/{gid}(gid=${group.id})}"
+                  method="post"
+                  enctype="multipart/form-data"
+                  th:object="${form}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="form-group">
+                    <label for="reportTitle">Tiêu đề báo cáo <span class="required">*</span></label>
+                    <input type="text" th:field="*{reportTitle}" id="reportTitle" maxlength="255" required/>
+                    <small class="muted">Tối đa 255 ký tự.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Mô tả / Ghi chú</label>
+                    <textarea th:field="*{description}" id="description" rows="3" maxlength="2000"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="file">File báo cáo <span class="required">*</span></label>
+                    <input type="file" name="file" id="file" required
+                           accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
+                    <small class="muted">Chấp nhận .pdf, .doc, .docx — tối đa 20MB.</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Nộp báo cáo</button>
+                    <a class="btn" th:href="@{/reports/group/{gid}(gid=${group.id})}">Huỷ</a>
+                </div>
+            </form>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

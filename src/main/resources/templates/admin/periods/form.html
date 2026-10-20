@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}"></head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+    <div class="app-main">
+        <div th:replace="~{fragments/layout :: topbar}"></div>
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <main id="main" class="page-content">
+
+            <div class="page-header">
+                <div class="page-header-start">
+                    <h1 class="page-title">
+                        <span th:text="${isEdit != null and isEdit} ? 'Sửa đợt đăng ký' : 'Tạo đợt đăng ký'">
+                            Tạo đợt đăng ký
+                        </span>
+                    </h1>
+                    <p class="page-subtitle">Đợt đăng ký xác định thời gian GV đề xuất đề tài và SV đăng ký nhóm.</p>
+                </div>
+                <div class="page-header-actions">
+                    <a th:href="@{/admin/periods}" class="btn btn-secondary">← Quay lại</a>
+                </div>
+            </div>
+
+            <form th:action="${isEdit != null and isEdit} ? @{|/admin/periods/${period.id}/edit|} : @{/admin/periods/new}"
+                  th:object="${form}"
+                  method="post">
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Thông tin chung</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                            <div class="form-row">
+                                <label for="name">Tên đợt <span class="required-mark">*</span></label>
+                                <input id="name" type="text" th:field="*{name}" maxlength="180"
+                                       required autofocus placeholder="Ví dụ: Đợt TLCN 2026 Học kỳ 1">
+                                <span class="form-hint">Tên hiển thị cho giảng viên và sinh viên</span>
+                                <span class="form-error" th:if="${#fields.hasErrors('name')}"
+                                      th:errors="*{name}"></span>
+                            </div>
+                            <div class="form-row">
+                                <label for="periodType">Loại đợt <span class="required-mark">*</span></label>
+                                <select id="periodType" th:field="*{periodType}" required>
+                                    <option value="">-- Chọn loại --</option>
+                                    <option value="MON_HOC">Môn học</option>
+                                    <option value="NCKH">NCKH</option>
+                                    <option value="TLCN">Tiểu luận chuyên ngành</option>
+                                    <option value="KLTN">Khóa luận tốt nghiệp</option>
+                                </select>
+                                <span class="form-hint">
+                                    Hạn chót GVPB chỉ hiện khi chọn TLCN hoặc KLTN.
+                                    Ngày báo cáo hội đồng chỉ hiện khi chọn KLTN.
+                                </span>
+                                <span class="form-error" th:if="${#fields.hasErrors('periodType')}"
+                                      th:errors="*{periodType}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Giai đoạn 1 — Giảng viên đăng ký đề tài</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                            <div class="form-row">
+                                <label for="lecturerStartAt">Bắt đầu <span class="required-mark">*</span></label>
+                                <input id="lecturerStartAt" type="datetime-local" th:field="*{lecturerStartAt}" required>
+                                <span class="form-error" th:if="${#fields.hasErrors('lecturerStartAt')}"
+                                      th:errors="*{lecturerStartAt}"></span>
+                            </div>
+                            <div class="form-row">
+                                <label for="lecturerEndAt">Kết thúc <span class="required-mark">*</span></label>
+                                <input id="lecturerEndAt" type="datetime-local" th:field="*{lecturerEndAt}" required>
+                                <span class="form-hint">Phải sau ngày bắt đầu</span>
+                                <span class="form-error" th:if="${#fields.hasErrors('lecturerEndAt')}"
+                                      th:errors="*{lecturerEndAt}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Giai đoạn 2 — Sinh viên đăng ký nhóm &amp; đề tài</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                            <div class="form-row">
+                                <label for="studentStartAt">Bắt đầu <span class="required-mark">*</span></label>
+                                <input id="studentStartAt" type="datetime-local" th:field="*{studentStartAt}" required>
+                                <span class="form-hint">Phải sau khi giai đoạn GV kết thúc</span>
+                                <span class="form-error" th:if="${#fields.hasErrors('studentStartAt')}"
+                                      th:errors="*{studentStartAt}"></span>
+                            </div>
+                            <div class="form-row">
+                                <label for="studentEndAt">Kết thúc <span class="required-mark">*</span></label>
+                                <input id="studentEndAt" type="datetime-local" th:field="*{studentEndAt}" required>
+                                <span class="form-hint">Phải sau ngày bắt đầu</span>
+                                <span class="form-error" th:if="${#fields.hasErrors('studentEndAt')}"
+                                      th:errors="*{studentEndAt}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mốc chuyên môn — JS ẩn/hiện theo loại -->
+                <div class="card" id="optional-dates-card">
+                    <div class="card-header">
+                        <h3>Mốc chuyên môn (tùy loại đợt)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                            <div class="form-row" id="reviewDeadlineRow">
+                                <label for="reviewDeadline">Hạn chót GVPB nộp điểm</label>
+                                <input id="reviewDeadline" type="datetime-local" th:field="*{reviewDeadline}">
+                                <span class="form-hint">Chỉ áp dụng với TLCN/KLTN. Phải sau khi SV kết thúc đăng ký.</span>
+                                <span class="form-error" th:if="${#fields.hasErrors('reviewDeadline')}"
+                                      th:errors="*{reviewDeadline}"></span>
+                            </div>
+                            <div class="form-row" id="councilDateRow">
+                                <label for="councilReportDate">Ngày báo cáo hội đồng</label>
+                                <input id="councilReportDate" type="datetime-local" th:field="*{councilReportDate}">
+                                <span class="form-hint">Chỉ áp dụng với KLTN. Phải sau hạn chót GVPB.</span>
+                                <span class="form-error" th:if="${#fields.hasErrors('councilReportDate')}"
+                                      th:errors="*{councilReportDate}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a th:href="@{/admin/periods}" class="btn btn-secondary">Hủy</a>
+                    <button type="submit" class="btn btn-primary" th:text="${isEdit != null and isEdit} ? 'Lưu thay đổi' : 'Tạo đợt'">
+                        Tạo đợt
+                    </button>
+                </div>
+            </form>
+
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

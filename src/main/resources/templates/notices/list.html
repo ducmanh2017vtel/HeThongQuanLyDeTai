@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+
+            <div th:replace="~{fragments/layout.html :: page-header}"
+                 th:with="pageTitle='Thông báo',
+                          pageActions=${ { { 'label': 'Quản lý', 'link': '/notices/manage', 'style': 'btn-secondary'} } }"></div>
+
+            <section class="card">
+                <ul class="notice-list" th:if="${not #lists.isEmpty(notices)}">
+                    <li th:each="n : ${notices}" class="notice-item">
+                        <a th:href="@{|/notices/${n.id}|}">
+                            <strong th:text="${n.title}">Tiêu đề</strong>
+                            <span class="tag tag-info" th:text="${n.type}">FACULTY</span>
+                        </a>
+                        <p th:text="${#strings.abbreviate(n.content, 200)}">Nội dung</p>
+                        <small class="hint">
+                            Đăng bởi
+                            <span th:text="${n.createdBy != null ? n.createdBy.fullName : 'N/A'}">N/A</span>
+                            • <span th:text="${n.publishedAt != null ? #temporals.format(n.publishedAt,'dd/MM/yyyy HH:mm') : ''}"></span>
+                        </small>
+                    </li>
+                </ul>
+                <p class="empty" th:if="${#lists.isEmpty(notices)}">
+                    Hiện chưa có thông báo nào được công bố.
+                </p>
+            </section>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

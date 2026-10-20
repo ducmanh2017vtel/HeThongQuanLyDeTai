@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+            <div th:replace="~{fragments/layout.html :: page-header}"></div>
+
+            <form class="card" method="get" th:action="@{/councils}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tìm kiếm</label>
+                        <input type="text" name="q" th:value="${q}" placeholder="Mã hoặc tên HĐ"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Đợt</label>
+                        <select name="periodId">
+                            <option value="">Tất cả</option>
+                            <option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name}"
+                                    th:selected="${periodId != null and periodId == p.id}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Trạng thái</label>
+                        <select name="status">
+                            <option value="">Tất cả</option>
+                            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"
+                                    th:selected="${status != null and status == s}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button class="btn btn-primary" type="submit">Lọc</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Danh sách hội đồng</h3>
+                    <a class="btn btn-primary" th:href="@{/councils/new}">+ Tạo hội đồng</a>
+                </div>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Mã HĐ</th>
+                            <th>Tên HĐ</th>
+                            <th>Đợt</th>
+                            <th>Loại</th>
+                            <th>Ngày báo cáo</th>
+                            <th>Số TV</th>
+                            <th>Trạng thái</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${page.content}">
+                            <td><code th:text="${c.councilCode}"></code></td>
+                            <td th:text="${c.councilName}"></td>
+                            <td th:text="${c.period != null ? c.period.name : '—'}"></td>
+                            <td th:text="${c.period != null ? c.period.periodType : '—'}"></td>
+                            <td th:text="${c.reportDate != null ? #temporals.format(c.reportDate, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+                            <td th:text="${c.members != null ? c.members.size() : 0}"></td>
+                            <td><span th:replace="~{fragments/layout.html :: badge(${c.status})}"></span></td>
+                            <td>
+                                <a class="btn btn-sm" th:href="@{/councils/{id}(id=${c.id})}">Xem</a>
+                                <a class="btn btn-sm" th:href="@{/councils/{id}/edit(id=${c.id})}"
+                                   th:if="${c.status.name() == 'DRAFT'}">Sửa</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${page.totalElements == 0}">
+                            <td colspan="8" class="text-center muted">Chưa có hội đồng nào.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div th:replace="~{fragments/layout.html :: pagination(${page}, '/councils')}"></div>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

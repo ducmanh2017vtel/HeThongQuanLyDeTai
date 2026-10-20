@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="error-page">
+    <h1 th:text="${status != null ? status : '403'}">403</h1>
+    <p class="msg" th:text="${message != null ? message : 'Bạn không có quyền truy cập trang này.'}"></p>
+    <a class="btn btn-primary" th:href="@{/dashboard}">Về Tổng quan</a>
+</div>
+</body>
+</html>

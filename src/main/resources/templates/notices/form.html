@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+
+            <div th:replace="~{fragments/layout.html :: page-header}"
+                 th:with="pageTitle=${noticeId == null ? 'Tạo thông báo' : 'Sửa thông báo'},
+                          pageActions=${ { { 'label': '← Quay lại', 'link': '/notices/manage', 'style': 'btn-secondary'} } }"></div>
+
+            <section class="card">
+                <form th:action="${noticeId == null ? '/notices/manage/save' : '/notices/manage/' + noticeId + '/update'}"
+                      th:object="${form}" method="post" class="stacked-form">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                    <div class="form-row">
+                        <label for="title">Tiêu đề <span class="required">*</span></label>
+                        <input type="text" id="title" th:field="*{title}" maxlength="255" required/>
+                        <small class="error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></small>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="type">Loại thông báo</label>
+                        <select id="type" th:field="*{type}">
+                            <option th:each="t : ${types}" th:value="${t}" th:text="${t}">FACULTY</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="content">Nội dung <span class="required">*</span></label>
+                        <textarea id="content" th:field="*{content}" rows="8" required></textarea>
+                        <small class="error" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></small>
+                    </div>
+
+                    <div class="form-row">
+                        <label>Gửi tới vai trò (bỏ trống = tất cả)</label>
+                        <div class="checkbox-grid">
+                            <label class="check" th:each="r : ${allRoles}">
+                                <input type="checkbox" name="targetRoleCodes" th:value="${r.code}"
+                                       th:checked="${form.targetRoleCodes != null and form.targetRoleCodes.contains(r.code)}"/>
+                                <span th:text="${r.name + ' (' + r.code + ')'}">Role</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <th:block th:text="${noticeId == null ? 'Tạo' : 'Cập nhật'}">Lưu</th:block>
+                        </button>
+                        <a th:href="@{/notices/manage}" class="btn btn-secondary">Huỷ</a>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

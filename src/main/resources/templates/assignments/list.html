@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+            <div th:replace="~{fragments/layout.html :: page-header}"></div>
+
+            <form class="card" method="get" th:action="@{/assignments}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Chọn hội đồng</label>
+                        <select name="councilId" onchange="this.form.submit()">
+                            <option value="">-- Chọn hội đồng --</option>
+                            <option th:each="c : ${councils}" th:value="${c.id}"
+                                    th:text="${c.councilCode + ' - ' + c.councilName}"
+                                    th:selected="${selectedCouncil != null and selectedCouncil.id == c.id}"></option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+
+            <div class="card" th:if="${selectedCouncil != null}">
+                <h3>Phân công chấm — <span th:text="${selectedCouncil.councilName}"></span></h3>
+
+                <h4>Thêm phân công</h4>
+                <form method="post" th:action="@{/assignments/create}" class="form-row">
+                    <input type="hidden" name="councilId" th:value="${selectedCouncil.id}"/>
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <div class="form-group">
+                        <label>Đề tài</label>
+                        <select name="topicId" required>
+                            <option value="">-- Chọn đề tài --</option>
+                            <option th:each="ct : ${councilTopics}" th:value="${ct.topic.id}"
+                                    th:text="${ct.topic.topicCode + ' - ' + ct.topic.topicName}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Giảng viên chấm</label>
+                        <select name="lecturerId" required>
+                            <option value="">-- Chọn GV --</option>
+                            <option th:each="l : ${lecturers}" th:value="${l.id}"
+                                    th:text="${l.user.fullName + ' (' + l.lecturerCode + ')'}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button class="btn btn-primary" type="submit">Phân công</button>
+                    </div>
+                </form>
+
+                <h4>Danh sách phân công</h4>
+                <table class="table table-hover">
+                    <thead>
+                        <tr><th>Đề tài</th><th>GV chấm</th><th>Trạng thái</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="a : ${assignments}">
+                            <td th:text="${a.topic.topicCode + ' - ' + a.topic.topicName}"></td>
+                            <td th:text="${a.lecturer.user.fullName}"></td>
+                            <td><span th:replace="~{fragments/layout.html :: badge(${a.status})}"></span></td>
+                            <td>
+                                <form th:action="@{/assignments/{id}/delete(id=${a.id})}" method="post" style="display:inline">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <button class="btn btn-sm btn-danger" type="submit"
+                                            onclick="return confirm('Xoá phân công?')">Xoá</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${assignments == null or assignments.empty}">
+                            <td colspan="4" class="text-center muted">Chưa phân công.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

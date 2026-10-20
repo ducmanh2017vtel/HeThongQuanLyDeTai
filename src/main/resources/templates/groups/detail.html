@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}"></head>
+<body>
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+<main class="app-main">
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div th:replace="~{fragments/layout :: page-header(pageTitle=${'Nhóm ' + group.groupCode}, pageSubtitle=${group.groupName})"></div>
+
+    <section class="card">
+        <h3>Thông tin nhóm</h3>
+        <dl class="info-grid">
+            <dt>Đợt</dt>
+            <dd th:text="${group.period.name}"></dd>
+            <dt>Trạng thái</dt>
+            <dd><span th:replace="~{fragments/layout :: badge(${group.status.toString()})}"></span></dd>
+            <dt>Đề tài</dt>
+            <dd>
+                <span th:if="${group.topic != null}">
+                    <strong th:text="${group.topic.topicCode}"></strong> — <span th:text="${group.topic.topicName}"></span>
+                </span>
+                <span th:if="${group.topic == null}" class="muted">Chưa đăng ký</span>
+            </dd>
+            <dt>Đăng ký</dt>
+            <dd>
+                <span th:if="${registration != null}">
+                    <span th:replace="~{fragments/layout :: badge(${registration.status.toString()})}"></span>
+                </span>
+                <span th:if="${registration == null}" class="muted">—</span>
+            </dd>
+        </dl>
+    </section>
+
+    <section class="card">
+        <h3>Thành viên (<span th:text="${group.members != null ? group.members.size() : 0}"></span>/3)</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Mã SV</th>
+                    <th>Họ tên</th>
+                    <th>Lớp</th>
+                    <th>Vai trò</th>
+                    <th th:if="${group.status.name() != 'APPROVED'}">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="m : ${group.members}">
+                    <td th:text="${m.student.studentCode}"></td>
+                    <td th:text="${m.student.user.fullName}"></td>
+                    <td th:text="${m.student.className}"></td>
+                    <td>
+                        <span th:if="${m.isLeader}" class="badge badge-success">Trưởng nhóm</span>
+                        <span th:if="${!m.isLeader}" class="muted">Thành viên</span>
+                    </td>
+                    <td th:if="${group.status.name() != 'APPROVED'}">
+                        <form th:if="${!m.isLeader and group.members.size() > 1}"
+                              th:action="@{|/groups/${group.id}/change-leader/${m.student.id}|}" method="post" style="display:inline">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-sm">Đổi trưởng</button>
+                        </form>
+                        <form th:if="${!m.isLeader}"
+                              th:action="@{|/groups/${group.id}/remove-member/${m.student.id}|}" method="post" style="display:inline">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Xoá thành viên này?')">Xoá</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Form thêm thành viên -->
+        <form th:if="${group.status.name() == 'DRAFT' and group.members.size() < 3}"
+              th:action="@{|/groups/${group.id}/add-member|}" method="post" class="form-inline">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="text" name="studentCode" placeholder="Mã sinh viên (cùng lớp)" required maxlength="20"/>
+            <button type="submit" class="btn btn-primary">+ Thêm thành viên</button>
+        </form>
+    </section>
+
+    <!-- Đăng ký đề tài -->
+    <section class="card" th:if="${group.topic == null and group.status.name() == 'DRAFT' and publishedTopics != null and !#lists.isEmpty(publishedTopics)}">
+        <h3>Đăng ký đề tài</h3>
+        <form th:action="@{|/groups/${group.id}/register|}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <div class="form-row">
+                <label>Chọn đề tài</label>
+                <select name="topicId" required>
+                    <option value="">-- Chọn đề tài --</option>
+                    <option th:each="t : ${publishedTopics}" th:value="${t.id}"
+                            th:text="${t.topicCode + ' - ' + t.topicName + ' (' + t.department.name + ')'}"></option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Đăng ký đề tài</button>
+        </form>
+    </section>
+
+    <section class="card" th:if="${group.topic != null and group.status.name() != 'APPROVED' and publishedTopics != null and !#lists.isEmpty(publishedTopics)}">
+        <h3>Đổi đề tài</h3>
+        <p class="muted">Bạn có thể đổi đề tài cho đến khi GVHD chấp thuận.</p>
+        <form th:action="@{|/groups/${group.id}/register|}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <div class="form-row">
+                <label>Chọn đề tài mới</label>
+                <select name="topicId" required>
+                    <option value="">-- Chọn đề tài --</option>
+                    <option th:each="t : ${publishedTopics}"
+                            th:if="${t.id != group.topic.id}"
+                            th:value="${t.id}"
+                            th:text="${t.topicCode + ' - ' + t.topicName}"></option>
+                </select>
+            </div>
+            <button type="submit" class="btn">Đổi đề tài</button>
+        </form>
+        <form th:action="@{|/groups/${group.id}/cancel-registration|}" method="post" style="margin-top:1rem">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('Huỷ đăng ký đề tài này?')">Huỷ đăng ký</button>
+        </form>
+    </section>
+
+    <section class="card" th:if="${group.status.name() == 'APPROVED'}">
+        <p class="alert alert-success">
+            ✓ Đề tài đã được GVHD chấp thuận. Nhóm không thể thay đổi thành viên hay đề tài nữa.
+        </p>
+    </section>
+
+    <!-- Xoá nhóm (chỉ khi DRAFT, chưa có đề tài) -->
+    <section class="card" th:if="${group.status.name() == 'DRAFT' and group.topic == null}">
+        <form th:action="@{|/groups/${group.id}/delete|}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('Xoá nhóm này?')">Xoá nhóm</button>
+        </form>
+    </section>
+</main>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

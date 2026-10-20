@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head}"></head>
+<body>
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+<main class="app-main">
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div th:replace="~{fragments/layout :: page-header}"></div>
+
+    <section class="card">
+        <div class="detail-grid">
+            <div><strong>Mã đề tài:</strong> <code th:text="${topic.topicCode}"></code></div>
+            <div><strong>Bộ môn:</strong> <span th:text="${topic.department.name}"></span></div>
+            <div><strong>Đợt:</strong> <span th:text="${topic.period.name}"></span></div>
+            <div>
+                <strong>Trạng thái:</strong>
+                <span th:replace="~{fragments/layout :: badge(${topic.status})}"></span>
+            </div>
+            <div>
+                <strong>Công bố:</strong>
+                <span class="badge" th:classappend="${topic.published} ? 'badge-success' : 'badge-neutral'"
+                      th:text="${topic.published} ? 'Đã công bố' : 'Chưa công bố'"></span>
+            </div>
+            <div>
+                <strong>GV đề xuất:</strong>
+                <span th:text="${topic.createdByLecturer.user.fullName}"></span>
+            </div>
+            <div th:if="${topic.approvedBy != null}">
+                <strong>Người duyệt:</strong>
+                <span th:text="${topic.approvedBy.fullName}"></span>
+                <span th:if="${topic.approvedAt != null}" class="muted"
+                      th:text="' - ' + ${#temporals.format(topic.approvedAt,'dd/MM/yyyy HH:mm')}"></span>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <h3>Tên đề tài</h3>
+        <p th:text="${topic.topicName}"></p>
+
+        <h3>Mô tả</h3>
+        <p style="white-space: pre-wrap;" th:text="${topic.description}"></p>
+
+        <h3>Giảng viên hướng dẫn</h3>
+        <ul class="detail-list">
+            <li th:each="s : ${supervisors}">
+                <strong th:text="${'GVHD ' + s.supervisorOrder + ':'}"></strong>
+                <span th:text="${s.lecturer.user.fullName}"></span>
+                <span class="muted" th:text="${' - ' + s.lecturer.department.name}"></span>
+            </li>
+        </ul>
+
+        <div th:if="${topic.rejectReason != null}" class="alert alert-warning">
+            <strong>Lý do từ chối:</strong>
+            <span th:text="${topic.rejectReason}"></span>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn btn-secondary" th:href="@{/admin/topics}">← Quay lại</a>
+
+            <form th:if="${topic.status.name() == 'PENDING'}"
+                  th:action="@{|/admin/topics/${topic.id}/approve|}" method="post" class="inline-form">
+                <button type="submit" class="btn btn-primary"
+                        onclick="return confirm('Duyệt đề tài này?');">Duyệt</button>
+            </form>
+
+            <form th:if="${topic.status.name() == 'PENDING'}"
+                  th:action="@{|/admin/topics/${topic.id}/reject|}" method="post" class="inline-form"
+                  onsubmit="return rejectSubmit(this);">
+                <input type="text" name="rejectReason" placeholder="Lý do từ chối (≥ 10 ký tự)..." required minlength="10" maxlength="500">
+                <button type="submit" class="btn btn-warning">Từ chối</button>
+            </form>
+
+            <form th:if="${topic.status.name() == 'APPROVED' and !topic.published}"
+                  th:action="@{|/admin/topics/${topic.id}/publish|}" method="post" class="inline-form">
+                <button type="submit" class="btn btn-primary"
+                        onclick="return confirm('Công bố đề tài này?');">Công bố</button>
+            </form>
+
+            <form th:if="${topic.status.name() == 'PENDING'}"
+                  th:action="@{|/admin/topics/${topic.id}/delete|}" method="post" class="inline-form"
+                  onsubmit="return confirm('Xoá đề tài này?');">
+                <button type="submit" class="btn btn-danger">Xoá</button>
+            </form>
+        </div>
+    </section>
+</main>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+    function rejectSubmit(form) {
+        const r = form.rejectReason.value.trim();
+        if (r.length < 10) {
+            alert('Lý do từ chối phải có ít nhất 10 ký tự');
+            return false;
+        }
+        return confirm('Từ chối đề tài này?');
+    }
+</script>
+</body>
+</html>

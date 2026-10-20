@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- ============================================================
+     fragments/components.html
+     Các fragment Thymeleaf dùng chung:
+       - flash: thông báo thành công/lỗi
+       - badge(value, type): badge trạng thái
+       - page-header: tiêu đề trang
+       - page-footer: footer với nút hành động
+       - empty-state: trạng thái trống
+       - table-pagination: phân trang (client-side)
+       - stepper(steps, current): thanh tiến trình
+     ============================================================ -->
+
+<!-- ========== FLASH MESSAGE ========== -->
+<th:block th:fragment="flash">
+    <div class="flash-container"
+         th:if="${success != null or error != null or message != null or info != null
+                  or flashSuccess != null or flashError != null or flashInfo != null}">
+        <div class="alert alert-success" role="status" data-auto-close="5000"
+             th:if="${success != null}">
+            <span class="alert-icon">✓</span>
+            <span class="alert-text" th:text="${success}"></span>
+            <button type="button" class="alert-close" aria-label="Đóng">×</button>
+        </div>
+        <div class="alert alert-success" role="status" data-auto-close="5000"
+             th:if="${flashSuccess != null}">
+            <span class="alert-icon">✓</span>
+            <span class="alert-text" th:text="${flashSuccess}"></span>
+            <button type="button" class="alert-close" aria-label="Đóng">×</button>
+        </div>
+        <div class="alert alert-error" role="alert"
+             th:if="${error != null}">
+            <span class="alert-icon">✗</span>
+            <span class="alert-text" th:text="${error}"></span>
+            <button type="button" class="alert-close" aria-label="Đóng">×</button>
+        </div>
+        <div class="alert alert-error" role="alert"
+             th:if="${flashError != null}">
+            <span class="alert-icon">✗</span>
+            <span class="alert-text" th:text="${flashError}"></span>
+            <button type="button" class="alert-close" aria-label="Đóng">×</button>
+        </div>
+        <div class="alert alert-info" role="status" data-auto-close="5000"
+             th:if="${info != null}">
+            <span class="alert-icon">ℹ</span>
+            <span class="alert-text" th:text="${info}"></span>
+            <button type="button" class="alert-close" aria-label="Đóng">×</button>
+        </div>
+        <div class="alert alert-info" role="status" data-auto-close="5000"
+             th:if="${flashInfo != null}">
+            <span class="alert-icon">ℹ</span>
+            <span class="alert-text" th:text="${flashInfo}"></span>
+            <button type="button" class="alert-close" aria-label="Đóng">×</button>
+        </div>
+        <div class="alert alert-warning" role="status" data-auto-close="5000"
+             th:if="${message != null and error == null and success == null and flashSuccess == null and flashError == null}">
+            <span class="alert-icon">!</span>
+            <span class="alert-text" th:text="${message}"></span>
+            <button type="button" class="alert-close" aria-label="Đóng">×</button>
+        </div>
+    </div>
+</th:block>
+
+<!-- ========== BADGE TRẠNG THÁI ========== -->
+<!-- Cách dùng: th:replace="~{fragments/components :: badge(${topic.status.name()}, 'topic')}" -->
+<th:block th:fragment="badge(value)">
+    <span class="badge"
+          th:classappend="' badge-' + ${@statusHelper.badgeClass(value)}"
+          th:text="${@statusHelper.label(value)}">
+        Trạng thái
+    </span>
+</th:block>
+
+<th:block th:fragment="badge-simple(value)">
+    <span class="badge"
+          th:classappend="${' badge-' + statusHelper.badgeClass(value)}"
+          th:text="${statusHelper.label(value)}">
+        Trạng thái
+    </span>
+</th:block>
+
+<!-- ========== PAGE HEADER ========== -->
+<!-- th:replace="~{fragments/components :: page-header}" -->
+<!-- Supports: pageTitle, pageSubtitle, pageActions, breadcrumb -->
+<th:block th:fragment="page-header">
+    <div class="page-header">
+        <div class="page-header-start">
+            <h1 class="page-title"
+                th:text="${pageTitle != null ? pageTitle : 'Trang'}">Trang</h1>
+            <p class="page-subtitle"
+               th:if="${pageSubtitle != null}"
+               th:text="${pageSubtitle}"></p>
+        </div>
+        <div class="page-header-actions"
+             th:if="${pageActions != null and !#lists.isEmpty(pageActions)}">
+            <th:block th:each="a : ${pageActions}">
+                <a th:if="${a.link != null}"
+                   th:href="@{${a.link}}"
+                   th:class="${a.style != null ? a.style : 'btn btn-primary'}"
+                   th:text="${a.label}">Hành động</a>
+                <button th:if="${a.link == null}"
+                        type="button"
+                        th:class="${a.style != null ? a.style : 'btn btn-primary'}"
+                        th:text="${a.label}">Hành động</button>
+            </th:block>
+        </div>
+    </div>
+</th:block>
+
+<!-- ========== EMPTY STATE ========== -->
+<!-- th:replace="~{fragments/components :: empty-state('Chưa có dữ liệu', 'Bấm nút bên dưới để thêm mới.', '/path/new', 'Thêm mới')}" -->
+<th:block th:fragment="empty-state(title, message, link, actionLabel)">
+    <div class="empty-state">
+        <div class="empty-icon" aria-hidden="true">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--muted);opacity:.4">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <path d="M3 9h18"/>
+                <path d="M9 21V9"/>
+            </svg>
+        </div>
+        <p class="empty-title" th:text="${title != null ? title : 'Chưa có dữ liệu'}"></p>
+        <p th:if="${message != null}" th:text="${message}"></p>
+        <a th:if="${link != null and actionLabel != null}"
+           th:href="@{${link}}"
+           class="btn btn-primary"
+           style="margin-top:var(--sp-4)"
+           th:text="${actionLabel}">Thêm mới</a>
+    </div>
+</th:block>
+
+<!-- ========== TABLE PAGINATION (client-side) ========== -->
+<!-- th:replace="~{fragments/components :: table-pagination}" -->
+<th:block th:fragment="table-pagination">
+    <div class="pagination-bar">
+        <span class="pagination-info">Hiển thị kết quả</span>
+        <ul class="pagination-list" aria-label="Phân trang"></ul>
+    </div>
+</th:block>
+
+<!-- ========== STEPPER ========== -->
+<!-- th:replace="~{fragments/components :: stepper(${steps}, ${currentStep})}" -->
+<!-- steps: List<{label, link}>, currentStep: int (0-based) -->
+<th:block th:fragment="stepper(steps, currentStep)">
+    <ol class="stepper" aria-label="Tiến trình" th:with="current=${currentStep != null ? currentStep : 0}">
+        <th:block th:each="step, iter : ${steps}" th:with="idx=${iter.index}">
+            <li class="stepper-item"
+                th:classappend="${idx < current} ? 'done' : (${idx == current} ? 'active' : '')">
+                <div class="stepper-node" aria-hidden="true">
+                    <th:block th:if="${idx < current}">✓</th:block>
+                    <th:block th:if="${idx == current}" th:text="${idx + 1}">1</th:block>
+                    <th:block th:if="${idx > current}" th:text="${idx + 1}">2</th:block>
+                </div>
+                <span class="stepper-label" th:text="${step.label}">Bước</span>
+                <div class="stepper-connector" th:if="${!iter.last}"></div>
+            </li>
+        </th:block>
+    </ol>
+</th:block>
+
+<!-- ========== STATUS BADGE HELPER (Inline SVG Icons) ========== -->
+<th:block th:fragment="status-icons">
+    <!-- Hidden SVG sprite for icons used in badges -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+        <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"/>
+        </symbol>
+        <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+        </symbol>
+        <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+        </symbol>
+        <symbol id="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </symbol>
+    </svg>
+</th:block>
+
+</body>
+</html>

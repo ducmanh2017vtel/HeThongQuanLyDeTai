@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- ============================================================
+     fragments/sidebar.html
+     Menu điều hướng bên trái — theo quyền người dùng
+     Biến model: canManagePeriods, canViewTopics, canCreateTopics, canApproveTopics,
+                 canManageGroups, canManageRegistrations, canViewReports, canSubmitReports,
+                 canManageCouncils, canManageAssignments, canEvaluate, canViewResults,
+                 canManageResults, canViewNotices, canManageNotices,
+                 canManageUsers, canManageRoles, canManagePermissions,
+                 active (String — trang hiện tại)
+     ============================================================ -->
+
+<aside class="sidebar" th:fragment="sidebar(active)"
+       th:with="active=${activeMenu != null ? activeMenu : (active != null ? active : '')}">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+        <span class="sidebar-brand-mark">CNTT</span>
+        <div class="sidebar-brand-text">
+            Quản lý đề tài
+            <span>Khoa Công nghệ thông tin</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav" aria-label="Menu chính">
+
+        <!-- Tổng quan -->
+        <div class="nav-section">
+            <a th:href="@{/dashboard}"
+               class="nav-link"
+               th:classappend="${active == 'dashboard'} ? 'active' : ''"
+               aria-current="${active == 'dashboard' ? 'page' : null}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1"/>
+                </svg>
+                <span>Tổng quan</span>
+            </a>
+        </div>
+
+        <!-- Quy trình đề tài -->
+        <th:block
+            th:if="${canManagePeriods or canViewTopics or canCreateTopics or canApproveTopics or canManageGroups or canManageRegistrations or canViewReports or canSubmitReports}">
+            <div class="nav-section">
+                <span class="nav-section-label">Quy trình đề tài</span>
+                <ul class="nav-list">
+
+                    <li class="nav-item" th:if="${canManagePeriods}">
+                        <a th:href="@{/registration-periods}"
+                           class="nav-link"
+                           th:classappend="${active == 'periods'} ? 'active' : ''">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                            <span>Đợt đăng ký</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item" th:if="${canViewTopics or canCreateTopics}">
+                        <a th:href="@{/topics}"
+                           class="nav-link"
+                           th:classappend="${active == 'topics'} ? 'active' : ''">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10 9 9 9 8 9"/>
+                            </svg>
+                            <span>Đề tài</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item" th:if="${canManageGroups or canManageRegistrations}">
+                        <a th:href="@{/groups}"
+                           class="nav-link"
+                           th:classappend="${active == 'groups' or active == 'registrations'} ? 'active' : ''">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            <span>Nhóm &amp; đăng ký</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item" th:if="${canViewReports or canSubmitReports}">
+                        <a th:href="@{/reports}"
+                           class="nav-link"
+                           th:classappend="${active == 'reports'} ? 'active' : ''">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            <span>Báo cáo</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </th:block>
+
+        <!-- Phản biện &amp; chấm điểm -->
+        <th:block
+            th:if="${canManageCouncils or canManageAssignments or canEvaluate or canViewResults or canManageResults}">
+            <div class="nav-section">
+                <span class="nav-section-label">Phản biện &amp; chấm điểm</span>
+                <ul class="nav-list">
+
+                    <li class="nav-item" th:if="${canManageCouncils}">
+                        <a th:href="@{/councils}"
+                           class="nav-link"
+                           th:classappend="${active == 'councils'} ? 'active' : ''">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            <span>Hội đồng</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item" th:if="${canManageAssignments}">
+                        <a th:href="@{/assignments}"
+                           class="nav-link"
+                           th:classappend="${active == 'assignments'} ? 'active' : ''">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                                <rect x="8" y="2" width="8" height="4" rx="1"/>
+                                <line x1="9" y1="12" x2="15" y2="12"/>
+                                <line x1="9" y1="16" x2="12" y2="16"/>
+                            </svg>
+                            <span>Phân công chấm</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item" th:if="${canEvaluate}">
+                        <a th:href="@{/evaluations}"
+                           class="nav-link"
+                           th:classappend="${active == 'evaluations'} ? 'active' : ''">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            <span>Nhập điểm</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item" th:if="${canManageResults}">
+                        <a th:href="@{/results/manage}"
+                           class="nav-link"
+                           th:classappend="${active == 'results-manage'} ? 'active' : ''">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <line x1="18" y1="20" x2="18" y2="10"/>
+                                <line x1="12" y1="20" x2="12" y2="4"/>
+                                <line x1="6" y1="20" x2="6" y2="14"/>
+                            </svg>
+                            <span>Tổng hợp &amp; công bố</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item" th:if="${canViewResults and !canManageResults}">
+                        <a th:href="@{/results}"
+                           class="nav-link"
+                           th:classappend="${active == 'results'} ? 'active' : ''">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <polyline points="9 11 12 14 22 4"/>
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                            </svg>
+                            <span>Kết quả của tôi</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </th:block>
+
+        <!-- Thông tin -->
+        <th:block th:if="${canViewNotices}">
+            <div class="nav-section">
+                <span class="nav-section-label">Thông tin</span>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a th:href="@{/notices}"
+                           class="nav-link"
+                           th:classappend="${active == 'notices'} ? 'active' : ''">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10 9 9 9 8 9"/>
+                            </svg>
+                            <span>Thông báo</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </th:block>
+
+        <!-- Quản trị -->
+        <th:block th:if="${canManageUsers or canManageRoles or canManagePermissions}">
+            <div class="nav-section">
+                <span class="nav-section-label">Quản trị</span>
+                <ul class="nav-list">
+
+                    <li class="nav-item" th:if="${canManageUsers}">
+                        <a th:href="@{/admin/users}"
+                           class="nav-link"
+                           th:classappend="${active == 'users'} ? 'active' : ''">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            <span>Tài khoản</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item" th:if="${canManageRoles}">
+                        <a th:href="@{/admin/roles}"
+                           class="nav-link"
+                           th:classappend="${active == 'roles'} ? 'active' : ''">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                            </svg>
+                            <span>Vai trò</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item" th:if="${canManagePermissions}">
+                        <a th:href="@{/admin/permissions}"
+                           class="nav-link"
+                           th:classappend="${active == 'permissions'} ? 'active' : ''">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                            </svg>
+                            <span>Phân quyền</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </th:block>
+
+    </nav>
+</aside>
+
+</body>
+</html>

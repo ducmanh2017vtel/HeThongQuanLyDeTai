@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}"></head>
+<body>
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+<main class="app-main">
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div th:replace="~{fragments/layout :: page-header(pageTitle=${'Duyệt đăng ký - Nhóm ' + group.groupCode})}"></div>
+
+    <section class="card">
+        <h3>Thông tin nhóm</h3>
+        <dl class="info-grid">
+            <dt>Mã nhóm</dt><dd th:text="${group.groupCode}"></dd>
+            <dt>Tên nhóm</dt><dd th:text="${group.groupName}"></dd>
+            <dt>Đợt</dt><dd th:text="${group.period.name}"></dd>
+            <dt>Trạng thái nhóm</dt>
+            <dd><span th:replace="~{fragments/layout :: badge(${group.status.toString()})}"></span></dd>
+        </dl>
+    </section>
+
+    <section class="card">
+        <h3>Thành viên</h3>
+        <table class="table">
+            <thead>
+                <tr><th>Mã SV</th><th>Họ tên</th><th>Lớp</th><th>Vai trò</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="m : ${group.members}">
+                    <td th:text="${m.student.studentCode}"></td>
+                    <td th:text="${m.student.user.fullName}"></td>
+                    <td th:text="${m.student.className}"></td>
+                    <td>
+                        <span th:if="${m.isLeader}" class="badge badge-success">Trưởng nhóm</span>
+                        <span th:if="${!m.isLeader}" class="muted">Thành viên</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card" th:if="${registration != null}">
+        <h3>Đề tài đăng ký</h3>
+        <dl class="info-grid">
+            <dt>Mã đề tài</dt><dd th:text="${group.topic.topicCode}"></dd>
+            <dt>Tên đề tài</dt><dd th:text="${group.topic.topicName}"></dd>
+            <dt>Bộ môn</dt><dd th:text="${group.topic.department.name}"></dd>
+            <dt>GVHD</dt>
+            <dd>
+                <ul>
+                    <li th:each="ts : ${group.topic.supervisors}"
+                        th:text="${ts.lecturer.user.fullName + (ts.supervisorOrder == 1 ? ' (chính)' : ' (phụ)')}"></li>
+                </ul>
+            </dd>
+            <dt>Trạng thái đăng ký</dt>
+            <dd><span th:replace="~{fragments/layout :: badge(${registration.status.toString()})}"></span></dd>
+            <dt>Ngày đăng ký</dt>
+            <dd th:text="${#temporals.format(registration.registeredAt, 'dd/MM/yyyy HH:mm')}"></dd>
+        </dl>
+    </section>
+
+    <section class="card" th:if="${registration != null and registration.status.name() == 'PENDING'}">
+        <h3>Quyết định</h3>
+        <form th:action="@{|/registrations-approval/${group.id}/approve|}" method="post" style="display:inline">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn btn-primary"
+                    onclick="return confirm('Chấp thuận đăng ký này?')">Chấp thuận</button>
+        </form>
+
+        <details style="margin-top:1rem">
+            <summary class="btn btn-danger">Từ chối</summary>
+            <form th:action="@{|/registrations-approval/${group.id}/reject|}" method="post" class="form" style="margin-top:0.5rem">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="form-row">
+                    <label for="reason">Lý do từ chối (≥ 10 ký tự) <span class="req">*</span></label>
+                    <textarea id="reason" name="reason" rows="3" required minlength="10" maxlength="500"></textarea>
+                </div>
+                <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('Từ chối đăng ký này?')">Xác nhận từ chối</button>
+            </form>
+        </details>
+    </section>
+
+    <section class="card" th:if="${registration != null and registration.status.name() == 'APPROVED'}">
+        <p class="alert alert-success">
+            ✓ Đã chấp thuận vào lúc
+            <span th:text="${#temporals.format(registration.approvedAt, 'dd/MM/yyyy HH:mm')}"></span>
+        </p>
+    </section>
+
+    <section class="card" th:if="${registration != null and registration.status.name() == 'REJECTED'}">
+        <p class="alert alert-error">
+            ✗ Đã từ chối. Lý do: <em th:text="${registration.rejectionReason}"></em>
+        </p>
+    </section>
+</main>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

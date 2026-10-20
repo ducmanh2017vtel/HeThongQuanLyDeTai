@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+            <div th:replace="~{fragments/layout.html :: page-header}"></div>
+
+            <div class="card">
+                <h3>Kết quả đã công bố</h3>
+                <p class="muted">Chỉ hiển thị kết quả mà Trưởng khoa đã công bố.</p>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nhóm</th>
+                            <th>Đề tài</th>
+                            <th>Đợt</th>
+                            <th>Điểm</th>
+                            <th>Kết quả</th>
+                            <th>Nhận xét</th>
+                            <th>Công bố lúc</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="r : ${results}">
+                            <td th:text="${r.group != null ? r.group.groupCode : '—'}"></td>
+                            <td th:text="${r.topic != null ? r.topic.topicName : '—'}"></td>
+                            <td th:text="${r.group != null and r.group.period != null ? r.group.period.name : '—'}"></td>
+                            <td><strong th:text="${r.finalScore}"></strong></td>
+                            <td><span th:replace="~{fragments/layout.html :: badge(${r.result})}"></span></td>
+                            <td th:text="${r.summaryComment != null ? r.summaryComment : '—'}"></td>
+                            <td th:text="${r.publishedAt != null ? #temporals.format(r.publishedAt, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+                        </tr>
+                        <tr th:if="${results == null or results.empty}">
+                            <td colspan="7" class="text-center muted">Bạn chưa có kết quả nào được công bố.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

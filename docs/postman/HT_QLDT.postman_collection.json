@@ -1,0 +1,582 @@
+{
+  "info": {
+    "name": "HT_QLDT - Hệ thống quản lý đề tài sinh viên",
+    "description": "Postman collection cho hệ thống quản lý đề tài sinh viên - khoa CNTT.\nBao gồm 13 giai đoạn: GĐ0 bootstrap → GĐ12 rà soát & docs.\nCác endpoint thuộc GĐ1–GĐ10. Đăng nhập bằng form login (/login) để lấy session cookie + CSRF token.\n\nTài khoản demo (chạy với profile dev + H2, seed tự động):\n- admin / admin123 (ADMIN)\n- truongkhoa / admin123 (TRUONG_KHOA)\n- cthd1 / admin123 (CHU_TICH_HOI_DONG)\n- gv_demo / admin123 (GIANG_VIEN)\n- sv_demo / admin123 (SINH_VIEN)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "csrfToken", "value": "" },
+    { "key": "sessionCookie", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "0. Auth",
+      "item": [
+        {
+          "name": "GET /login",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/login", "host": ["{{baseUrl}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "POST /login (form)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "admin" },
+                { "key": "password", "value": "admin123" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/login", "host": ["{{baseUrl}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "POST /logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/logout", "host": ["{{baseUrl}}"], "path": ["logout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Dashboard / Me",
+      "item": [
+        {
+          "name": "GET /dashboard",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/dashboard", "host": ["{{baseUrl}}"], "path": ["dashboard"] } }
+        },
+        {
+          "name": "GET /me",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/me", "host": ["{{baseUrl}}"], "path": ["me"] } }
+        },
+        {
+          "name": "GET /me/change-password",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/me/change-password", "host": ["{{baseUrl}}"], "path": ["me", "change-password"] } }
+        },
+        {
+          "name": "POST /me/change-password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "oldPassword", "value": "admin123" },
+                { "key": "newPassword", "value": "NewPass123" },
+                { "key": "confirmPassword", "value": "NewPass123" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/me/change-password", "host": ["{{baseUrl}}"], "path": ["me", "change-password"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Admin: Users / Roles / Permissions",
+      "item": [
+        {
+          "name": "GET /admin/users",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/users", "host": ["{{baseUrl}}"], "path": ["admin", "users"] } }
+        },
+        {
+          "name": "GET /admin/users/new",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/users/new", "host": ["{{baseUrl}}"], "path": ["admin", "users", "new"] } }
+        },
+        {
+          "name": "POST /admin/users/save",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "newuser01" },
+                { "key": "password", "value": "Pwd@12345" },
+                { "key": "fullName", "value": "Người dùng mới" },
+                { "key": "email", "value": "newuser01@local" },
+                { "key": "status", "value": "ACTIVE" },
+                { "key": "roleIds", "value": "5" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/admin/users/save", "host": ["{{baseUrl}}"], "path": ["admin", "users", "save"] }
+          }
+        },
+        {
+          "name": "GET /admin/roles",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/roles", "host": ["{{baseUrl}}"], "path": ["admin", "roles"] } }
+        },
+        {
+          "name": "GET /admin/permissions",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/permissions", "host": ["{{baseUrl}}"], "path": ["admin", "permissions"] } }
+        }
+      ]
+    },
+    {
+      "name": "3. Periods (Admin)",
+      "item": [
+        {
+          "name": "GET /admin/periods",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/periods", "host": ["{{baseUrl}}"], "path": ["admin", "periods"] } }
+        },
+        {
+          "name": "GET /admin/periods/new",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/periods/new", "host": ["{{baseUrl}}"], "path": ["admin", "periods", "new"] } }
+        },
+        {
+          "name": "POST /admin/periods/save",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "name", "value": "Đợt KLTN 2026" },
+                { "key": "periodType", "value": "KLTN" },
+                { "key": "lecturerStartAt", "value": "2026-01-01T00:00" },
+                { "key": "lecturerEndAt", "value": "2026-02-01T00:00" },
+                { "key": "studentStartAt", "value": "2026-02-02T00:00" },
+                { "key": "studentEndAt", "value": "2026-03-01T00:00" },
+                { "key": "reviewDeadline", "value": "2026-04-01T00:00" },
+                { "key": "councilReportDate", "value": "2026-05-01T00:00" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/admin/periods/save", "host": ["{{baseUrl}}"], "path": ["admin", "periods", "save"] }
+          }
+        },
+        {
+          "name": "POST /admin/periods/{id}/publish",
+          "request": { "method": "POST", "header": [], "url": { "raw": "{{baseUrl}}/admin/periods/1/publish", "host": ["{{baseUrl}}"], "path": ["admin", "periods", "1", "publish"] } }
+        },
+        {
+          "name": "POST /admin/periods/{id}/close",
+          "request": { "method": "POST", "header": [], "url": { "raw": "{{baseUrl}}/admin/periods/1/close", "host": ["{{baseUrl}}"], "path": ["admin", "periods", "1", "close"] } }
+        }
+      ]
+    },
+    {
+      "name": "4. Topics (Lecturer & Admin)",
+      "item": [
+        {
+          "name": "GET /topics",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/topics", "host": ["{{baseUrl}}"], "path": ["topics"] } }
+        },
+        {
+          "name": "GET /topics/new",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/topics/new", "host": ["{{baseUrl}}"], "path": ["topics", "new"] } }
+        },
+        {
+          "name": "POST /topics/save",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "topicCode", "value": "DT-DEMO-001" },
+                { "key": "topicName", "value": "Đề tài demo Postman collection" },
+                { "key": "description", "value": "Mô tả chi tiết đề tài demo dùng cho Postman, dài hơn 30 ký tự." },
+                { "key": "departmentId", "value": "1" },
+                { "key": "periodId", "value": "1" },
+                { "key": "supervisorLecturerIds", "value": "1" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/topics/save", "host": ["{{baseUrl}}"], "path": ["topics", "save"] }
+          }
+        },
+        {
+          "name": "GET /topics/{id}",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/topics/1", "host": ["{{baseUrl}}"], "path": ["topics", "1"] } }
+        },
+        {
+          "name": "GET /admin/topics",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/topics", "host": ["{{baseUrl}}"], "path": ["admin", "topics"] } }
+        },
+        {
+          "name": "POST /admin/topics/{id}/approve",
+          "request": { "method": "POST", "header": [], "url": { "raw": "{{baseUrl}}/admin/topics/1/approve", "host": ["{{baseUrl}}"], "path": ["admin", "topics", "1", "approve"] } }
+        },
+        {
+          "name": "POST /admin/topics/{id}/reject",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "reason", "value": "Mô tả đề tài chưa đủ chi tiết, cần bổ sung thêm." },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/admin/topics/1/reject", "host": ["{{baseUrl}}"], "path": ["admin", "topics", "1", "reject"] }
+          }
+        },
+        {
+          "name": "POST /admin/topics/{id}/publish",
+          "request": { "method": "POST", "header": [], "url": { "raw": "{{baseUrl}}/admin/topics/1/publish", "host": ["{{baseUrl}}"], "path": ["admin", "topics", "1", "publish"] } }
+        },
+        {
+          "name": "POST /admin/topics/publish-by-period",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "periodId", "value": "1" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/admin/topics/publish-by-period", "host": ["{{baseUrl}}"], "path": ["admin", "topics", "publish-by-period"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Groups & Registrations (SV & GVHD)",
+      "item": [
+        {
+          "name": "GET /groups",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/groups", "host": ["{{baseUrl}}"], "path": ["groups"] } }
+        },
+        {
+          "name": "GET /groups/new",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/groups/new", "host": ["{{baseUrl}}"], "path": ["groups", "new"] } }
+        },
+        {
+          "name": "POST /groups/save",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "groupCode", "value": "G-DEMO-01" },
+                { "key": "groupName", "value": "Nhóm demo Postman" },
+                { "key": "periodId", "value": "1" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/groups/save", "host": ["{{baseUrl}}"], "path": ["groups", "save"] }
+          }
+        },
+        {
+          "name": "GET /groups/{id}",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/groups/1", "host": ["{{baseUrl}}"], "path": ["groups", "1"] } }
+        },
+        {
+          "name": "POST /groups/{id}/members/add",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "studentUserId", "value": "5" },
+                { "key": "isLeader", "value": "false" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/groups/1/members/add", "host": ["{{baseUrl}}"], "path": ["groups", "1", "members", "add"] }
+          }
+        },
+        {
+          "name": "POST /groups/{id}/register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "topicId", "value": "1" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/groups/1/register", "host": ["{{baseUrl}}"], "path": ["groups", "1", "register"] }
+          }
+        },
+        {
+          "name": "GET /registrations",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/registrations?status=REGISTERED", "host": ["{{baseUrl}}"], "path": ["registrations"], "query": [{ "key": "status", "value": "REGISTERED" }] } }
+        },
+        {
+          "name": "POST /registrations/{id}/approve",
+          "request": { "method": "POST", "header": [], "url": { "raw": "{{baseUrl}}/registrations/1/approve", "host": ["{{baseUrl}}"], "path": ["registrations", "1", "approve"] } }
+        },
+        {
+          "name": "POST /registrations/{id}/reject",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "reason", "value": "Đề tài đã hết chỉ tiêu cho nhóm, vui lòng chọn đề tài khác." },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/registrations/1/reject", "host": ["{{baseUrl}}"], "path": ["registrations", "1", "reject"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Reports (SV upload)",
+      "item": [
+        {
+          "name": "GET /reports",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/reports", "host": ["{{baseUrl}}"], "path": ["reports"] } }
+        },
+        {
+          "name": "GET /reports/group/{id}",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/reports/group/1", "host": ["{{baseUrl}}"], "path": ["reports", "group", "1"] } }
+        },
+        {
+          "name": "GET /reports/upload/{groupId}",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/reports/upload/1", "host": ["{{baseUrl}}"], "path": ["reports", "upload", "1"] } }
+        },
+        {
+          "name": "POST /reports/upload/{groupId}",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "multipart/form-data" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "/path/to/report.pdf" },
+                { "key": "versionNote", "value": "Bản nộp đầu tiên" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/reports/upload/1", "host": ["{{baseUrl}}"], "path": ["reports", "upload", "1"] }
+          }
+        },
+        {
+          "name": "GET /reports/{id}/download",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/reports/1/download", "host": ["{{baseUrl}}"], "path": ["reports", "1", "download"] } }
+        }
+      ]
+    },
+    {
+      "name": "7. Councils (CTHD)",
+      "item": [
+        {
+          "name": "GET /councils",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/councils", "host": ["{{baseUrl}}"], "path": ["councils"] } }
+        },
+        {
+          "name": "GET /councils/new",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/councils/new", "host": ["{{baseUrl}}"], "path": ["councils", "new"] } }
+        },
+        {
+          "name": "POST /councils/save",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "councilCode", "value": "HD-DEMO-01" },
+                { "key": "councilName", "value": "HĐ demo 1" },
+                { "key": "periodId", "value": "1" },
+                { "key": "reportDate", "value": "2026-05-15T08:00" },
+                { "key": "lecturerIds", "value": "1" },
+                { "key": "lecturerIds", "value": "2" },
+                { "key": "lecturerIds", "value": "3" },
+                { "key": "roles", "value": "CHAIRMAN" },
+                { "key": "roles", "value": "SECRETARY" },
+                { "key": "roles", "value": "MEMBER" },
+                { "key": "topicIds", "value": "1" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/councils/save", "host": ["{{baseUrl}}"], "path": ["councils", "save"] }
+          }
+        },
+        {
+          "name": "GET /councils/{id}",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/councils/1", "host": ["{{baseUrl}}"], "path": ["councils", "1"] } }
+        },
+        {
+          "name": "POST /councils/{id}/ready",
+          "request": { "method": "POST", "header": [], "url": { "raw": "{{baseUrl}}/councils/1/ready", "host": ["{{baseUrl}}"], "path": ["councils", "1", "ready"] } }
+        },
+        {
+          "name": "POST /councils/{id}/finished",
+          "request": { "method": "POST", "header": [], "url": { "raw": "{{baseUrl}}/councils/1/finished", "host": ["{{baseUrl}}"], "path": ["councils", "1", "finished"] } }
+        }
+      ]
+    },
+    {
+      "name": "8. Assignments & Evaluations",
+      "item": [
+        {
+          "name": "GET /assignments",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/assignments", "host": ["{{baseUrl}}"], "path": ["assignments"] } }
+        },
+        {
+          "name": "POST /assignments/save",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "councilId", "value": "1" },
+                { "key": "topicId", "value": "1" },
+                { "key": "lecturerId", "value": "2" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/assignments/save", "host": ["{{baseUrl}}"], "path": ["assignments", "save"] }
+          }
+        },
+        {
+          "name": "GET /evaluations",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/evaluations", "host": ["{{baseUrl}}"], "path": ["evaluations"] } }
+        },
+        {
+          "name": "GET /evaluations/new?assignmentId=1",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/evaluations/new?assignmentId=1", "host": ["{{baseUrl}}"], "path": ["evaluations", "new"], "query": [{ "key": "assignmentId", "value": "1" }] } }
+        },
+        {
+          "name": "POST /evaluations/save",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "assignmentId", "value": "1" },
+                { "key": "score", "value": "7.50" },
+                { "key": "comment", "value": "Đề tài đạt yêu cầu, có thể cải thiện thêm về mặt trình bày." },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/evaluations/save", "host": ["{{baseUrl}}"], "path": ["evaluations", "save"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Results (TK)",
+      "item": [
+        {
+          "name": "GET /results/manage",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/results/manage?periodId=1", "host": ["{{baseUrl}}"], "path": ["results", "manage"], "query": [{ "key": "periodId", "value": "1" }] } }
+        },
+        {
+          "name": "POST /results/calculate",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "topicId", "value": "1" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/results/calculate", "host": ["{{baseUrl}}"], "path": ["results", "calculate"] }
+          }
+        },
+        {
+          "name": "POST /results/publish",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "resultId", "value": "1" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/results/publish", "host": ["{{baseUrl}}"], "path": ["results", "publish"] }
+          }
+        },
+        {
+          "name": "POST /results/unpublish",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "resultId", "value": "1" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/results/unpublish", "host": ["{{baseUrl}}"], "path": ["results", "unpublish"] }
+          }
+        },
+        {
+          "name": "GET /results/me",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/results/me", "host": ["{{baseUrl}}"], "path": ["results", "me"] } }
+        }
+      ]
+    },
+    {
+      "name": "10. Notices",
+      "item": [
+        {
+          "name": "GET /notices",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/notices", "host": ["{{baseUrl}}"], "path": ["notices"] } }
+        },
+        {
+          "name": "GET /notices/{id}",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/notices/1", "host": ["{{baseUrl}}"], "path": ["notices", "1"] } }
+        },
+        {
+          "name": "GET /notices/manage",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/notices/manage", "host": ["{{baseUrl}}"], "path": ["notices", "manage"] } }
+        },
+        {
+          "name": "GET /notices/manage/new",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/notices/manage/new", "host": ["{{baseUrl}}"], "path": ["notices", "manage", "new"] } }
+        },
+        {
+          "name": "POST /notices/manage/save",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "title", "value": "Thông báo demo từ Postman" },
+                { "key": "content", "value": "Nội dung thông báo demo, dài hơn 10 ký tự." },
+                { "key": "type", "value": "FACULTY" },
+                { "key": "targetRoleCodes", "value": "GIANG_VIEN" },
+                { "key": "targetRoleCodes", "value": "SINH_VIEN" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/notices/manage/save", "host": ["{{baseUrl}}"], "path": ["notices", "manage", "save"] }
+          }
+        },
+        {
+          "name": "POST /notices/manage/{id}/publish",
+          "request": { "method": "POST", "header": [], "url": { "raw": "{{baseUrl}}/notices/manage/1/publish", "host": ["{{baseUrl}}"], "path": ["notices", "manage", "1", "publish"] } }
+        },
+        {
+          "name": "POST /notices/manage/{id}/hide",
+          "request": { "method": "POST", "header": [], "url": { "raw": "{{baseUrl}}/notices/manage/1/hide", "host": ["{{baseUrl}}"], "path": ["notices", "manage", "1", "hide"] } }
+        }
+      ]
+    }
+  ]
+}

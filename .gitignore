@@ -1,0 +1,31 @@
+## Build artifacts
+target/
+build/
+out/
+*.jar
+*.war
+
+## IDE
+.idea/
+*.iml
+.vscode/*
+!.vscode/settings.json
+
+## Logs
+*.log
+logs/
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Local secrets
+.env
+application-local.properties
+application-prod.properties
+
+## Maven wrapper jar (tải khi cần)
+.mvn/wrapper/maven-wrapper.jar
+
+## Uploaded reports (cấu hình app.storage.dir)
+.reports/

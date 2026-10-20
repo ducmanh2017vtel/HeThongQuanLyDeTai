@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head}"></head>
+<body>
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+<main class="app-main">
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div th:replace="~{fragments/layout :: page-header(pageTitle='Nhóm & đăng ký', pageSubtitle='Lập nhóm sinh viên và đăng ký đề tài')}"></div>
+
+    <section class="card">
+        <header class="card-header">
+            <h3>Nhóm của tôi</h3>
+            <a th:href="@{/groups/new}" class="btn btn-primary">+ Tạo nhóm mới</a>
+        </header>
+
+        <div th:if="${myGroups == null or #lists.isEmpty(myGroups)}" class="empty-state">
+            <p>Bạn chưa có nhóm nào.</p>
+            <p>Bấm <strong>+ Tạo nhóm mới</strong> để bắt đầu.</p>
+        </div>
+
+        <table th:if="${myGroups != null and !#lists.isEmpty(myGroups)}" class="table">
+            <thead>
+                <tr>
+                    <th>Mã nhóm</th>
+                    <th>Tên nhóm</th>
+                    <th>Đợt</th>
+                    <th>Sĩ thành viên</th>
+                    <th>Trạng thái</th>
+                    <th>Đề tài</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="g : ${myGroups}">
+                    <td><strong th:text="${g.groupCode}"></strong></td>
+                    <td th:text="${g.groupName}"></td>
+                    <td th:text="${g.period.name}"></td>
+                    <td>
+                        <span th:text="${g.members != null ? g.members.size() : 0}"></span> / 3
+                    </td>
+                    <td>
+                        <span th:replace="~{fragments/layout :: badge(${g.status.toString()})}"></span>
+                    </td>
+                    <td>
+                        <span th:if="${g.topic != null}" th:text="${g.topic.topicCode + ' - ' + g.topic.topicName}"></span>
+                        <span th:if="${g.topic == null}" class="muted">—</span>
+                    </td>
+                    <td>
+                        <a th:href="@{|/groups/${g.id}|}" class="btn btn-sm">Chi tiết</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card" th:if="${openPeriods != null and !#lists.isEmpty(openPeriods)}">
+        <h3>Đợt đang mở cho sinh viên</h3>
+        <ul class="inline-list">
+            <li th:each="p : ${openPeriods}">
+                <span th:text="${p.name}"></span>
+                <span class="muted">(đến <span th:text="${#temporals.format(p.studentEndAt, 'dd/MM/yyyy HH:mm')}"></span>)</span>
+            </li>
+        </ul>
+    </section>
+</main>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

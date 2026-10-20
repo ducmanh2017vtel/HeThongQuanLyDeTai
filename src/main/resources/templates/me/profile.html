@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+            <div th:replace="~{fragments/layout.html :: page-header}"
+                 th:with="pageTitle='Hồ sơ của tôi'"></div>
+
+            <div class="card form-grid">
+                <div class="form-row">
+                    <span class="label">Tên đăng nhập</span>
+                    <input type="text" th:value="${user.username}" readonly>
+                </div>
+                <div class="form-row">
+                    <span class="label">Họ tên</span>
+                    <input type="text" th:value="${user.fullName}" readonly>
+                </div>
+                <div class="form-row">
+                    <span class="label">Email</span>
+                    <input type="text" th:value="${user.email}" readonly>
+                </div>
+                <div class="form-row">
+                    <span class="label">Số điện thoại</span>
+                    <input type="text" th:value="${user.phone}" readonly>
+                </div>
+                <div class="form-row">
+                    <span class="label">Vai trò</span>
+                    <span class="tag tag-info" th:each="r : ${user.roles}" th:text="${r.code}"></span>
+                </div>
+                <div class="form-actions">
+                    <a class="btn btn-primary" th:href="@{/me/change-password}">Đổi mật khẩu</a>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

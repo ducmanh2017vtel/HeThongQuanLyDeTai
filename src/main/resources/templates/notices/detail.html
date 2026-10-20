@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+
+            <div th:replace="~{fragments/layout.html :: page-header}"
+                 th:with="pageTitle=${notice.title},
+                          pageActions=${ { { 'label': '← Quay lại', 'link': '/notices', 'style': 'btn-secondary'} } }"></div>
+
+            <article class="card notice-detail">
+                <h2 th:text="${notice.title}">Tiêu đề</h2>
+                <p class="meta">
+                    <span class="tag tag-info" th:text="${notice.type}">FACULTY</span>
+                    <span>Đăng bởi:
+                        <strong th:text="${notice.createdBy != null ? notice.createdBy.fullName : 'N/A'}">N/A</strong>
+                    </span>
+                    <span>•</span>
+                    <span th:text="${notice.publishedAt != null ? #temporals.format(notice.publishedAt,'dd/MM/yyyy HH:mm') : ''}"></span>
+                </p>
+                <div class="content" th:utext="${#strings.replace(#strings.escapeXml(notice.content), T(java.lang.System).lineSeparator(), '&lt;br/&gt;')}">
+                    Nội dung
+                </div>
+                <p class="hint" th:if="${notice.targetRoles != null and not #lists.isEmpty(notice.targetRoles)}">
+                    Gửi tới:
+                    <span class="tag" th:each="r : ${notice.targetRoles}" th:text="${r.name}">Role</span>
+                </p>
+            </article>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

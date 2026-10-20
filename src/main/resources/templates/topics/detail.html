@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}"></head>
+<body>
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+<main class="app-main">
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div th:replace="~{fragments/layout :: page-header}"></div>
+
+    <section class="card">
+        <div class="detail-grid">
+            <div><strong>Mã đề tài:</strong> <code th:text="${topic.topicCode}"></code></div>
+            <div><strong>Bộ môn:</strong> <span th:text="${topic.department.name}"></span></div>
+            <div><strong>Đợt:</strong> <span th:text="${topic.period.name}"></span></div>
+            <div>
+                <strong>Trạng thái:</strong>
+                <span th:replace="~{fragments/layout :: badge(${topic.status})}"></span>
+            </div>
+            <div>
+                <strong>Công bố:</strong>
+                <span class="badge" th:classappend="${topic.published} ? 'badge-success' : 'badge-neutral'"
+                      th:text="${topic.published} ? 'Đã công bố' : 'Chưa'"></span>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <h3>Tên đề tài</h3>
+        <p th:text="${topic.topicName}"></p>
+
+        <h3>Mô tả</h3>
+        <p style="white-space: pre-wrap;" th:text="${topic.description}"></p>
+
+        <h3>Giảng viên hướng dẫn</h3>
+        <ul class="detail-list">
+            <li th:each="s : ${supervisors}">
+                <strong th:text="${'GVHD ' + s.supervisorOrder + ':'}"></strong>
+                <span th:text="${s.lecturer.user.fullName}"></span>
+            </li>
+        </ul>
+
+        <div th:if="${topic.rejectReason != null}" class="alert alert-warning">
+            <strong>Lý do bị từ chối:</strong>
+            <span th:text="${topic.rejectReason}"></span>
+            <p class="muted">Bạn có thể sửa đề tài và gửi duyệt lại.</p>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn btn-secondary" th:href="@{/topics}">← Quay lại</a>
+            <a class="btn" th:if="${topic.status.name() == 'PENDING' or topic.status.name() == 'REJECTED'}"
+               th:href="@{|/topics/${topic.id}/edit|}">Sửa</a>
+        </div>
+    </section>
+</main>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+            <div th:replace="~{fragments/layout.html :: page-header}"></div>
+
+            <div class="card">
+                <h3>Thông tin nhóm</h3>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th style="width: 200px">Mã nhóm</th>
+                            <td th:text="${group.groupCode}"></td>
+                        </tr>
+                        <tr>
+                            <th>Tên nhóm</th>
+                            <td th:text="${group.groupName}"></td>
+                        </tr>
+                        <tr>
+                            <th>Đề tài</th>
+                            <td th:text="${group.topic != null ? group.topic.topicName : '—'}"></td>
+                        </tr>
+                        <tr>
+                            <th>Trạng thái</th>
+                            <td><span th:replace="~{fragments/layout.html :: badge(${group.status})}"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Danh sách báo cáo</h3>
+                    <a class="btn btn-primary"
+                       th:href="@{/reports/upload/{gid}(gid=${group.id})}"
+                       sec:authorize="hasAuthority('SUBMISSION_CREATE')">+ Nộp báo cáo</a>
+                </div>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Phiên bản</th>
+                            <th>Tiêu đề</th>
+                            <th>File</th>
+                            <th>Kích thước</th>
+                            <th>Người nộp</th>
+                            <th>Thời điểm</th>
+                            <th>Trạng thái</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="r : ${reports.content}">
+                            <td><strong>v<span th:text="${r.version}"></span></strong></td>
+                            <td th:text="${r.reportTitle}"></td>
+                            <td th:text="${r.fileName}"></td>
+                            <td th:text="${T(java.lang.String).format('%.1f KB', r.fileSize / 1024.0)}"></td>
+                            <td th:text="${r.submittedBy != null ? r.submittedBy.fullName : '—'}"></td>
+                            <td th:text="${r.submittedAt != null ? #temporals.format(r.submittedAt, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+                            <td><span th:replace="~{fragments/layout.html :: badge(${r.status})}"></span></td>
+                            <td>
+                                <a class="btn btn-sm"
+                                   th:href="@{/reports/{id}/download(id=${r.id})}"
+                                   sec:authorize="hasAuthority('REPORT_VIEW')">Tải về</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${reports.totalElements == 0}">
+                            <td colspan="8" class="text-center muted">Chưa có báo cáo nào.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div th:replace="~{fragments/layout.html :: pagination(${reports}, '/reports/group/' + ${group.id})}"></div>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

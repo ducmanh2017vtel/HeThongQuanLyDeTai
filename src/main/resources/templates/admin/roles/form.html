@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+            <div th:replace="~{fragments/layout.html :: page-header}"
+                 th:with="pageTitle=${isNew} ? 'Tạo vai trò' : 'Sửa vai trò'"></div>
+
+            <form class="card form-grid" method="post"
+                  th:action="${isNew} ? @{/admin/roles/new} : @{|/admin/roles/${form.id}/edit|}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="form-row">
+                    <label class="label" for="code">Mã vai trò *</label>
+                    <input type="text" id="code" name="code" th:value="${form.code}"
+                           th:readonly="${!isNew}" required>
+                    <span class="help">CHỮ IN HOA, số, gạch dưới. Không thể đổi sau khi tạo.</span>
+                </div>
+                <div class="form-row">
+                    <label class="label" for="name">Tên hiển thị *</label>
+                    <input type="text" id="name" name="name" th:value="${form.name}" required>
+                </div>
+                <div class="form-row">
+                    <label class="label" for="description">Mô tả</label>
+                    <input type="text" id="description" name="description" th:value="${form.description}">
+                </div>
+                <div class="hint" th:if="${systemFlag}">
+                    Đây là vai trò hệ thống. Một số thao tác sửa/xóa bị hạn chế.
+                </div>
+                <div class="form-actions">
+                    <a class="btn btn-secondary" th:href="@{/admin/roles}">Hủy</a>
+                    <button class="btn btn-primary" type="submit">Lưu</button>
+                </div>
+            </form>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

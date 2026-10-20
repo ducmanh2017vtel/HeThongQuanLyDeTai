@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+            <div th:replace="~{fragments/layout.html :: page-header}"></div>
+
+            <form class="card" method="get" th:action="@{/results/manage}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Chọn đợt</label>
+                        <select name="periodId" onchange="this.form.submit()">
+                            <option value="">-- Chọn đợt --</option>
+                            <option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name + ' (' + p.periodType + ')'}"
+                                    th:selected="${periodId != null and periodId == p.id}"></option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+
+            <div class="card" th:if="${periodId != null and !topics.empty}">
+                <h3>Bước 1: Tổng hợp điểm</h3>
+                <p class="muted">HĐ phải ở trạng thái Hoàn tất và tất cả GV phải đã nhập điểm.</p>
+                <table class="table table-hover">
+                    <thead>
+                        <tr><th>Đề tài</th><th>Trạng thái</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="t : ${topics}">
+                            <td th:text="${t.topicCode + ' - ' + t.topicName}"></td>
+                            <td>
+                                <span th:if="${calculatedMap[t.id]}" class="badge badge-success">Đã tổng hợp</span>
+                                <span th:unless="${calculatedMap[t.id]}" class="badge badge-warning">Chưa</span>
+                            </td>
+                            <td>
+                                <form th:action="@{/results/calculate}" method="post" style="display:inline">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <input type="hidden" name="topicId" th:value="${t.id}"/>
+                                    <input type="hidden" name="periodId" th:value="${periodId}"/>
+                                    <button class="btn btn-sm btn-primary" type="submit">Tổng hợp</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card" th:if="${periodId != null}">
+                <h3>Bước 2: Công bố kết quả</h3>
+                <p class="muted">Tổng hợp điểm từ các GV được phân công trong hội đồng; công bố cho sinh viên xem.</p>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nhóm</th>
+                            <th>Đề tài</th>
+                            <th>HĐ</th>
+                            <th>Điểm TB</th>
+                            <th>Kết quả</th>
+                            <th>Tổng hợp lúc</th>
+                            <th>Công bố</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="r : ${results}">
+                            <td th:text="${r.group != null ? r.group.groupCode : '—'}"></td>
+                            <td th:text="${r.topic != null ? r.topic.topicName : '—'}"></td>
+                            <td th:text="${r.council != null ? r.council.councilName : '—'}"></td>
+                            <td><strong th:text="${r.finalScore != null ? r.finalScore : '—'}"></strong></td>
+                            <td><span th:replace="~{fragments/layout.html :: badge(${r.result})}"></span></td>
+                            <td th:text="${r.calculatedAt != null ? #temporals.format(r.calculatedAt, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+                            <td>
+                                <span th:if="${r.published}" th:text="${r.publishedAt != null ? #temporals.format(r.publishedAt, 'dd/MM/yyyy HH:mm') : 'Có'}"></span>
+                                <span th:unless="${r.published}">Chưa</span>
+                            </td>
+                            <td>
+                                <form th:action="@{/results/calculate}" method="post" style="display:inline">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <input type="hidden" name="topicId" th:value="${r.topic.id}"/>
+                                    <input type="hidden" name="periodId" th:value="${periodId}"/>
+                                    <button class="btn btn-sm" type="submit">Tổng hợp lại</button>
+                                </form>
+                                <form th:if="${!r.published}" th:action="@{/results/publish}" method="post" style="display:inline">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <input type="hidden" name="resultId" th:value="${r.id}"/>
+                                    <input type="hidden" name="periodId" th:value="${periodId}"/>
+                                    <button class="btn btn-sm btn-primary" type="submit"
+                                            onclick="return confirm('Công bố kết quả?')">Công bố</button>
+                                </form>
+                                <form th:if="${r.published}" th:action="@{/results/unpublish}" method="post" style="display:inline">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <input type="hidden" name="resultId" th:value="${r.id}"/>
+                                    <input type="hidden" name="periodId" th:value="${periodId}"/>
+                                    <button class="btn btn-sm" type="submit"
+                                            onclick="return confirm('Thu hồi công bố?')">Thu hồi</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${results == null or results.empty}">
+                            <td colspan="8" class="text-center muted">Đợt này chưa có kết quả.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

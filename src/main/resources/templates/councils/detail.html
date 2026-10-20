@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">
+                        <span th:text="${council.councilCode}"></span> — <span th:text="${council.councilName}"></span>
+                    </h1>
+                    <p class="page-subtitle">
+                        Đợt: <span th:text="${council.period.name}"></span>
+                        · Trạng thái: <span th:replace="~{fragments/layout.html :: badge(${council.status})}"></span>
+                    </p>
+                </div>
+                <div class="page-actions">
+                    <a class="btn" th:href="@{/councils}">← Danh sách</a>
+                    <a class="btn btn-primary" th:href="@{/councils/{id}/edit(id=${council.id})}"
+                       th:if="${council.status.name() == 'DRAFT'}">Sửa</a>
+                    <form th:if="${council.status.name() == 'DRAFT'}"
+                          th:action="@{/councils/{id}/delete(id=${council.id})}" method="post" style="display:inline">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button class="btn btn-danger" type="submit"
+                                onclick="return confirm('Xoá hội đồng này?')">Xoá</button>
+                    </form>
+                    <form th:if="${council.status.name() == 'DRAFT'}"
+                          th:action="@{/councils/{id}/ready(id=${council.id})}" method="post" style="display:inline">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button class="btn btn-primary" type="submit">Chuyển SẴN SÀNG</button>
+                    </form>
+                    <form th:if="${council.status.name() == 'READY'}"
+                          th:action="@{/councils/{id}/finish(id=${council.id})}" method="post" style="display:inline">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button class="btn btn-primary" type="submit">Hoàn tất</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Thông tin chung</h3>
+                <table class="table">
+                    <tbody>
+                        <tr><th>Mã HĐ</th><td><code th:text="${council.councilCode}"></code></td></tr>
+                        <tr><th>Tên HĐ</th><td th:text="${council.councilName}"></td></tr>
+                        <tr><th>Đợt</th><td th:text="${council.period.name + ' (' + council.period.periodType + ')'}"></td></tr>
+                        <tr><th>Ngày báo cáo</th><td th:text="${council.reportDate != null ? #temporals.format(council.reportDate, 'dd/MM/yyyy HH:mm') : '—'}"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3>Thành viên hội đồng</h3>
+                <table class="table table-hover">
+                    <thead>
+                        <tr><th>Vai trò</th><th>Họ tên</th><th>Mã GV</th><th>Bộ môn</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="m : ${council.members}">
+                            <td th:switch="${m.role.name()}">
+                                <span th:case="'CHAIRMAN'">Chủ tịch</span>
+                                <span th:case="'SECRETARY'">Thư ký</span>
+                                <span th:case="'MEMBER'">Ủy viên</span>
+                                <span th:case="*" th:text="${m.role}"></span>
+                            </td>
+                            <td th:text="${m.lecturer.user.fullName}"></td>
+                            <td th:text="${m.lecturer.lecturerCode}"></td>
+                            <td th:text="${m.lecturer.department.name}"></td>
+                        </tr>
+                        <tr th:if="${council.members == null or council.members.empty}">
+                            <td colspan="4" class="text-center muted">Chưa có thành viên.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

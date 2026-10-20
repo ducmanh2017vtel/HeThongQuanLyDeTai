@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+            <div th:replace="~{fragments/layout.html :: page-header}"></div>
+
+            <div class="card">
+                <h3>Đề tài được phân công chấm</h3>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Hội đồng</th>
+                            <th>Đề tài</th>
+                            <th>Mã</th>
+                            <th>Ngày phân công</th>
+                            <th>Trạng thái</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="a : ${assignments}">
+                            <td th:text="${a.council.councilName}"></td>
+                            <td th:text="${a.topic.topicName}"></td>
+                            <td th:text="${a.topic.topicCode}"></td>
+                            <td th:text="${a.assignedAt != null ? #temporals.format(a.assignedAt, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+                            <td><span th:replace="~{fragments/layout.html :: badge(${a.status})}"></span></td>
+                            <td>
+                                <a class="btn btn-sm btn-primary" th:href="@{/evaluations/{id}(id=${a.id})}">Nhập điểm</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${assignments == null or assignments.empty}">
+                            <td colspan="6" class="text-center muted">Bạn chưa được phân công chấm đề tài nào.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

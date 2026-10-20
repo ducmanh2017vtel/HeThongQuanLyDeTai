@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}"></head>
+<body>
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+<main class="app-main">
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div th:replace="~{fragments/layout :: page-header}"></div>
+
+    <section class="card">
+        <div class="detail-grid">
+            <div><strong>Loại:</strong> <span class="badge badge-type" th:text="${period.periodType}"></span></div>
+            <div><strong>Trạng thái:</strong> <span th:replace="~{fragments/layout :: badge(${period.status})}"></span></div>
+            <div><strong>Giai đoạn hiện tại:</strong> <span class="badge" th:text="${currentStage}"></span></div>
+            <div><strong>Người tạo:</strong> <span th:text="${period.createdBy != null ? period.createdBy.fullName : '—'}"></span></div>
+        </div>
+
+        <hr class="divider">
+
+        <h3>Mốc thời gian</h3>
+        <ul class="timeline">
+            <li>
+                <span class="timeline-label">GV đăng ký:</span>
+                <span th:text="${#temporals.format(period.lecturerStartAt,'dd/MM/yyyy HH:mm')} + ' → ' + ${#temporals.format(period.lecturerEndAt,'dd/MM/yyyy HH:mm')}"></span>
+            </li>
+            <li>
+                <span class="timeline-label">SV đăng ký:</span>
+                <span th:text="${#temporals.format(period.studentStartAt,'dd/MM/yyyy HH:mm')} + ' → ' + ${#temporals.format(period.studentEndAt,'dd/MM/yyyy HH:mm')}"></span>
+            </li>
+            <li th:if="${period.reviewDeadline != null}">
+                <span class="timeline-label">Hạn chót GVPB:</span>
+                <span th:text="${#temporals.format(period.reviewDeadline,'dd/MM/yyyy HH:mm')}"></span>
+            </li>
+            <li th:if="${period.councilReportDate != null}">
+                <span class="timeline-label">Ngày báo cáo HĐ:</span>
+                <span th:text="${#temporals.format(period.councilReportDate,'dd/MM/yyyy HH:mm')}"></span>
+            </li>
+        </ul>
+
+        <div class="form-actions">
+            <a class="btn btn-secondary" th:href="@{/admin/periods}">← Quay lại</a>
+            <a class="btn" th:href="@{|/admin/periods/${period.id}/edit|}"
+               th:if="${period.status.name() == 'DRAFT' || period.status.name() == 'PUBLISHED'}">Sửa mốc thời gian</a>
+
+            <form th:if="${period.status.name() == 'DRAFT'}" th:action="@{|/admin/periods/${period.id}/publish|}" method="post" class="inline-form">
+                <button type="submit" class="btn btn-primary">Công bố</button>
+            </form>
+            <form th:if="${period.status.name() == 'PUBLISHED'}" th:action="@{|/admin/periods/${period.id}/close|}" method="post" class="inline-form">
+                <button type="submit" class="btn btn-warning">Đóng đợt</button>
+            </form>
+            <form th:if="${period.status.name() == 'DRAFT'}" th:action="@{|/admin/periods/${period.id}/delete|}" method="post" class="inline-form"
+                  onsubmit="return confirm('Xoá đợt đăng ký này? Hành động không thể hoàn tác.');">
+                <button type="submit" class="btn btn-danger">Xoá</button>
+            </form>
+        </div>
+    </section>
+</main>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

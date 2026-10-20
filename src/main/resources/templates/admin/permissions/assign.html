@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+            <div th:replace="~{fragments/layout.html :: page-header}"
+                 th:with="pageTitle='Phân quyền cho ' + ${role.name}"></div>
+
+            <form class="card" method="post" th:action="@{|/admin/permissions/assign/${role.id}|}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="form-grid">
+                    <label th:each="p : ${allPermissions}" class="permission-row">
+                        <input type="checkbox" name="permissionIds" th:value="${p.id}"
+                               th:checked="${selectedIds != null and selectedIds.contains(p.id)}">
+                        <span>
+                            <strong th:text="${p.code}"></strong>
+                            <small class="text-muted" th:text="${p.description}"></small>
+                        </span>
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <a class="btn btn-secondary" th:href="@{/admin/permissions}">Hủy</a>
+                    <button class="btn btn-primary" type="submit">Lưu</button>
+                </div>
+            </form>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

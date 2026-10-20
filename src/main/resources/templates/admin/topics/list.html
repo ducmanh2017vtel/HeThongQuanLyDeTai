@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head}"></head>
+<body>
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+<main class="app-main">
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div th:replace="~{fragments/layout :: page-header}"></div>
+
+    <section class="card filter-bar">
+        <form th:action="@{/admin/topics}" method="get" class="filter-form">
+            <div class="filter-row">
+                <div class="filter-field">
+                    <label for="q">Từ khoá</label>
+                    <input id="q" type="text" name="q" th:value="${q}" placeholder="Mã hoặc tên đề tài...">
+                </div>
+                <div class="filter-field">
+                    <label for="status">Trạng thái</label>
+                    <select id="status" name="status">
+                        <option value="">-- Tất cả --</option>
+                        <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${s == status}"></option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="periodId">Đợt</label>
+                    <select id="periodId" name="periodId">
+                        <option value="">-- Tất cả --</option>
+                        <option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name}" th:selected="${p.id == periodId}"></option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="departmentId">Bộ môn</label>
+                    <select id="departmentId" name="departmentId">
+                        <option value="">-- Tất cả --</option>
+                        <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}" th:selected="${d.id == departmentId}"></option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="published">Công bố</label>
+                    <select id="published" name="published">
+                        <option value="">-- Tất cả --</option>
+                        <option value="true" th:selected="${published == true}">Đã công bố</option>
+                        <option value="false" th:selected="${published == false}">Chưa công bố</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn">Lọc</button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <section class="card data-card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Mã đề tài</th>
+                    <th>Tên đề tài</th>
+                    <th>Bộ môn</th>
+                    <th>GVHD</th>
+                    <th>Trạng thái</th>
+                    <th>Công bố</th>
+                    <th class="text-right">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${page.totalElements == 0}">
+                    <td colspan="8" class="empty-state">
+                        Chưa có đề tài nào.
+                    </td>
+                </tr>
+                <tr th:each="t : ${page.content}">
+                    <td th:text="${t.id}"></td>
+                    <td><code th:text="${t.topicCode}"></code></td>
+                    <td>
+                        <a th:href="@{|/admin/topics/${t.id}|}" th:text="${t.topicName}"></a>
+                    </td>
+                    <td th:text="${t.department.name}"></td>
+                    <td>
+                        <span th:each="s,iter : ${t.supervisors}">
+                            <span th:text="${s.lecturer.user.fullName}"></span>
+                            <small th:text="${'(GVHD ' + s.supervisorOrder + ')'}"></small>
+                            <span th:if="${!iter.last}" class="muted"> · </span>
+                        </span>
+                    </td>
+                    <td>
+                        <span th:replace="~{fragments/layout :: badge(${t.status})}"></span>
+                    </td>
+                    <td>
+                        <span class="badge" th:classappend="${t.published} ? 'badge-success' : 'badge-neutral'"
+                              th:text="${t.published} ? 'Đã công bố' : 'Chưa'"></span>
+                    </td>
+                    <td class="text-right">
+                        <a class="btn btn-sm" th:href="@{|/admin/topics/${t.id}|}">Xem</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div th:replace="~{fragments/layout :: pagination(${page}, '/admin/topics')}"></div>
+    </section>
+</main>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng nhập · Quản lý đề tài</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <style>
+        /* ===== LOGIN PAGE ===== */
+        .login-shell {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--sand);
+        }
+        .login-band {
+            background: linear-gradient(135deg, var(--navy) 0%, #1e5a72 100%);
+            padding: var(--sp-6) var(--sp-6);
+            color: #fff;
+        }
+        .login-band-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: var(--sp-4);
+        }
+        .login-brand {
+            background: var(--teal);
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 10px 14px;
+            border-radius: var(--radius);
+            letter-spacing: .04em;
+            flex-shrink: 0;
+        }
+        .login-band-text h1 {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 0 4px;
+        }
+        .login-band-text p {
+            color: rgba(255,255,255,.8);
+            margin: 0;
+            font-size: 14px;
+        }
+        .login-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--sp-7) var(--sp-4);
+        }
+        .login-card {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            padding: var(--sp-7) var(--sp-8);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--line);
+        }
+        .login-card-header {
+            text-align: center;
+            margin-bottom: var(--sp-6);
+        }
+        .login-card-header h2 {
+            font-size: 22px;
+            margin: 0 0 var(--sp-1);
+            color: var(--text);
+        }
+        .login-card-header p {
+            color: var(--muted);
+            font-size: 14px;
+            margin: 0;
+        }
+        .login-form .form-grid {
+            gap: var(--sp-4);
+        }
+        .login-form .form-row {
+            position: relative;
+        }
+        .login-form .form-row input {
+            padding-right: 44px;
+        }
+        .login-form .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 32px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: var(--radius-xs);
+            transition: color var(--t-fast);
+        }
+        .login-form .password-toggle:hover { color: var(--teal); }
+        .login-form .btn-primary {
+            width: 100%;
+            margin-top: var(--sp-2);
+        }
+        .login-error {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--sp-2);
+            padding: var(--sp-3) var(--sp-4);
+            background: var(--danger-bg);
+            border: 1px solid var(--danger);
+            border-radius: var(--radius);
+            color: var(--danger);
+            font-size: 14px;
+            margin-bottom: var(--sp-4);
+        }
+        .login-error-icon { flex-shrink: 0; font-size: 16px; }
+        .login-info {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--sp-2);
+            padding: var(--sp-3) var(--sp-4);
+            background: var(--info-bg);
+            border: 1px solid var(--info);
+            border-radius: var(--radius);
+            color: var(--info);
+            font-size: 14px;
+            margin-bottom: var(--sp-4);
+        }
+        .login-footer {
+            text-align: center;
+            margin-top: var(--sp-5);
+            padding-top: var(--sp-4);
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 12.5px;
+        }
+        .login-footer a { color: var(--teal); }
+
+        @media (max-width: 480px) {
+            .login-card { padding: var(--sp-5) var(--sp-4); }
+            .login-band { padding: var(--sp-4); }
+            .login-brand { font-size: 13px; padding: 8px 10px; }
+            .login-band-text h1 { font-size: 17px; }
+        }
+    </style>
+</head>
+<body>
+<div class="login-shell">
+    <!-- Band màu nhận diện khoa -->
+    <div class="login-band">
+        <div class="login-band-inner">
+            <div class="login-brand" aria-hidden="true">CNTT</div>
+            <div class="login-band-text">
+                <h1>Quản lý đề tài sinh viên</h1>
+                <p>Khoa Công nghệ thông tin · Hệ thống đăng ký đề tài &amp; chấm điểm</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thân đăng nhập -->
+    <div class="login-body">
+        <div class="login-card">
+            <div class="login-card-header">
+                <h2>Đăng nhập</h2>
+                <p>Nhập tài khoản để truy cập hệ thống</p>
+            </div>
+
+            <!-- Thông báo lỗi -->
+            <div class="login-error" th:if="${loginError != null}">
+                <span class="login-error-icon" aria-hidden="true">✗</span>
+                <span th:text="${loginError}">Sai tài khoản hoặc mật khẩu</span>
+            </div>
+
+            <!-- Thông báo đã đăng xuất -->
+            <div class="login-info" th:if="${loginInfo != null}">
+                <span aria-hidden="true">ℹ</span>
+                <span th:text="${loginInfo}">Bạn đã đăng xuất.</span>
+            </div>
+
+            <!-- Form đăng nhập (CSRF từ CookieCsrfTokenRepository, không cần input thủ công) -->
+            <form th:action="@{/login}" method="post" class="login-form" autocomplete="on">
+
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label for="username">Tài khoản <span class="required-mark" aria-hidden="true">*</span></label>
+                        <input type="text" id="username" name="username"
+                               required autofocus
+                               autocomplete="username"
+                               inputmode="text"
+                               maxlength="60"
+                               placeholder="Tên đăng nhập">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="password">Mật khẩu <span class="required-mark" aria-hidden="true">*</span></label>
+                        <input type="password" id="password" name="password"
+                               required
+                               autocomplete="current-password"
+                               minlength="6" maxlength="128"
+                               placeholder="Mật khẩu của bạn">
+                        <button type="button" class="password-toggle" data-target="password"
+                                aria-label="Hiện mật khẩu">Hiện</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                        <polyline points="10 17 15 12 10 7"/>
+                        <line x1="15" y1="12" x2="3" y2="12"/>
+                    </svg>
+                    Đăng nhập
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p>© Khoa CNTT · Múi giờ: Asia/Ho_Chi_Minh</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.password-toggle').forEach(function (btn) {
+        var target = document.getElementById(btn.dataset.target);
+        if (!target) return;
+        btn.addEventListener('click', function () {
+            var isPassword = target.type === 'password';
+            target.type = isPassword ? 'text' : 'password';
+            btn.textContent = isPassword ? 'Ẩn' : 'Hiện';
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}"></head>
+<body>
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+<main class="app-main">
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div th:replace="~{fragments/layout :: page-header(pageTitle='Tạo nhóm SV', pageSubtitle='Bạn sẽ là nhóm trưởng. Có thể thêm thành viên cùng lớp sau.')}"></div>
+
+    <form th:action="@{/groups/new}" th:object="${form}" method="post" class="form card">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div class="form-row">
+            <label for="periodId">Đợt đăng ký <span class="req">*</span></label>
+            <select id="periodId" th:field="*{periodId}" required>
+                <option value="">-- Chọn đợt --</option>
+                <option th:each="p : ${openPeriods}" th:value="${p.id}" th:text="${p.name}"></option>
+            </select>
+            <small class="error" th:if="${#fields.hasErrors('periodId')}" th:errors="*{periodId}"></small>
+        </div>
+
+        <div class="form-row">
+            <label for="groupCode">Mã nhóm <span class="req">*</span></label>
+            <input type="text" id="groupCode" th:field="*{groupCode}" maxlength="40" required/>
+            <small class="error" th:if="${#fields.hasErrors('groupCode')}" th:errors="*{groupCode}"></small>
+        </div>
+
+        <div class="form-row">
+            <label for="groupName">Tên nhóm <span class="req">*</span></label>
+            <input type="text" id="groupName" th:field="*{groupName}" maxlength="180" required/>
+            <small class="error" th:if="${#fields.hasErrors('groupName')}" th:errors="*{groupName}"></small>
+        </div>
+
+        <div class="form-actions">
+            <a th:href="@{/groups}" class="btn">Huỷ</a>
+            <button type="submit" class="btn btn-primary">Tạo nhóm</button>
+        </div>
+    </form>
+</main>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

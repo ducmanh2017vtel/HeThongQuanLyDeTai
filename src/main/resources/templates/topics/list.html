@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head}"></head>
+<body>
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+<main class="app-main">
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div th:replace="~{fragments/layout :: page-header}"></div>
+
+    <div th:if="${openPeriods != null and !openPeriods.isEmpty()}" class="alert alert-info">
+        Hiện đang có <strong th:text="${#lists.size(openPeriods)}"></strong> đợt mở cho giảng viên đăng ký đề tài.
+        <ul class="inline-list">
+            <li th:each="p : ${openPeriods}">
+                <a class="btn btn-primary btn-sm" th:href="@{|/topics/new?periodId=${p.id}|}">
+                    Đề xuất cho: <span th:text="${p.name}"></span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div th:if="${openPeriods == null or openPeriods.isEmpty()}" class="alert alert-warning">
+        Hiện không có đợt nào mở cho giảng viên đăng ký đề tài.
+    </div>
+
+    <section class="card">
+        <h3>Đề tài của tôi</h3>
+        <p class="muted">Danh sách đề tài bạn đã đề xuất. Bấm vào đề tài để xem chi tiết hoặc sửa.</p>
+        <p class="muted"><em>(Màn hình danh sách chi tiết sẽ được bổ sung khi có dữ liệu; dùng menu bên trái để truy cập nhanh.)</em></p>
+    </section>
+</main>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

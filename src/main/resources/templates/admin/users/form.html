@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout.html :: sidebar}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout.html :: topbar}"></div>
+        <main class="content">
+            <div th:replace="~{fragments/layout.html :: flash}"></div>
+            <div th:replace="~{fragments/layout.html :: page-header}"
+                 th:with="pageTitle=${isNew} ? 'Tạo tài khoản' : 'Sửa tài khoản'"></div>
+
+            <form class="card form-grid" method="post"
+                  th:action="${isNew} ? @{/admin/users/new} : @{|/admin/users/${form.id}/edit|}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="form-row">
+                    <label class="label" for="username">Tên đăng nhập *</label>
+                    <input type="text" id="username" name="username" th:value="${form.username}"
+                           th:readonly="${!isNew}" required minlength="3" maxlength="60">
+                    <span class="help" th:if="${!isNew}">Không thể đổi tên đăng nhập</span>
+                    <span class="error" th:if="${#fields.hasErrors('form.username')}"
+                          th:errors="*{form.username}"></span>
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="fullName">Họ tên *</label>
+                    <input type="text" id="fullName" name="fullName" th:value="${form.fullName}" required>
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="email">Email *</label>
+                    <input type="email" id="email" name="email" th:value="${form.email}" required>
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="phone">Số điện thoại</label>
+                    <input type="text" id="phone" name="phone" th:value="${form.phone}">
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="roleCodes">Vai trò *</label>
+                    <input type="text" id="roleCodes" name="roleCodes" th:value="${form.roleCodes}"
+                           placeholder="ADMIN, TRUONG_KHOA, GIANG_VIEN, SINH_VIEN...">
+                    <span class="help">Phân tách bằng dấu phẩy. Mã phân biệt HOA-thường.</span>
+                </div>
+
+                <!-- Khi tạo mới tài khoản SV/GV: yêu cầu profile -->
+                <fieldset th:if="${isNew}">
+                    <legend>Hồ sơ Sinh viên (chỉ cần khi tạo tài khoản SINH_VIEN)</legend>
+                    <div class="form-row">
+                        <label class="label" for="studentCode">Mã sinh viên</label>
+                        <input type="text" id="studentCode" name="studentCode" th:value="${form.studentCode}">
+                    </div>
+                    <div class="form-row">
+                        <label class="label" for="className">Lớp</label>
+                        <input type="text" id="className" name="className" th:value="${form.className}">
+                    </div>
+                    <div class="form-row">
+                        <label class="label" for="major">Ngành</label>
+                        <input type="text" id="major" name="major" th:value="${form.major}">
+                    </div>
+                </fieldset>
+
+                <fieldset th:if="${isNew}">
+                    <legend>Hồ sơ Giảng viên (chỉ cần khi tạo tài khoản GIANG_VIEN)</legend>
+                    <div class="form-row">
+                        <label class="label" for="lecturerCode">Mã giảng viên</label>
+                        <input type="text" id="lecturerCode" name="lecturerCode" th:value="${form.lecturerCode}">
+                    </div>
+                    <div class="form-row">
+                        <label class="label" for="academicDegree">Học vị</label>
+                        <input type="text" id="academicDegree" name="academicDegree" th:value="${form.academicDegree}">
+                    </div>
+                    <div class="form-row">
+                        <label class="label" for="departmentId">Bộ môn</label>
+                        <input type="number" id="departmentId" name="departmentId" th:value="${form.departmentId}">
+                    </div>
+                </fieldset>
+
+                <div class="form-actions">
+                    <a class="btn btn-secondary" th:href="@{/admin/users}">Hủy</a>
+                    <button class="btn btn-primary" type="submit">Lưu</button>
+                </div>
+            </form>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout.html :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}"></head>
+<body>
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+<main class="app-main">
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div th:replace="~{fragments/layout :: page-header}"></div>
+
+    <section class="card form-card">
+        <form th:action="${topic != null} ? @{|/topics/${topic.id}/edit|} : @{/topics/new}"
+              method="post" th:object="${form}">
+
+            <div class="form-block">
+                <h3 class="form-block-title">Thông tin chung</h3>
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="topicCode">Mã đề tài <span class="required">*</span></label>
+                        <input id="topicCode" type="text" th:field="*{topicCode}" maxlength="30" required>
+                        <small class="form-hint">Mã duy nhất, không dấu cách (vd: DT-KHMT-001).</small>
+                    </div>
+                    <div class="form-field">
+                        <label for="topicName">Tên đề tài <span class="required">*</span></label>
+                        <input id="topicName" type="text" th:field="*{topicName}" maxlength="300" minlength="10" required>
+                        <small class="form-hint">Tối thiểu 10 ký tự.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-block">
+                <h3 class="form-block-title">Phân loại</h3>
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label>Bộ môn</label>
+                        <input type="text" th:value="${department.name}" disabled readonly>
+                        <input type="hidden" th:field="*{departmentId}">
+                        <small class="form-hint">Bộ môn mặc định theo hồ sơ giảng viên của bạn.</small>
+                    </div>
+                    <div class="form-field">
+                        <label for="periodId">Đợt đăng ký <span class="required">*</span></label>
+                        <select id="periodId" th:field="*{periodId}" required>
+                            <option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name}"></option>
+                        </select>
+                        <small class="form-hint">Chỉ hiện các đợt đang mở cho GV.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-block">
+                <h3 class="form-block-title">Mô tả đề tài</h3>
+                <div class="form-field">
+                    <label for="description">Nội dung chi tiết <span class="required">*</span></label>
+                    <textarea id="description" th:field="*{description}" rows="8" minlength="30" maxlength="4000" required></textarea>
+                    <small class="form-hint">Mục tiêu, phạm vi, công nghệ sử dụng, kết quả dự kiến. Tối thiểu 30 ký tự.</small>
+                </div>
+            </div>
+
+            <div class="form-block">
+                <h3 class="form-block-title">Giảng viên hướng dẫn</h3>
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="supervisor1Id">GVHD chính <span class="required">*</span></label>
+                        <select id="supervisor1Id" th:field="*{supervisor1Id}" required>
+                            <option value="">-- Chọn --</option>
+                            <option th:each="s : ${availableSupervisors}"
+                                    th:value="${s.id}"
+                                    th:text="${s.user.fullName + ' (' + s.lecturerCode + ')'}"></option>
+                        </select>
+                        <small class="form-hint">Bắt buộc, là giảng viên đang hoạt động thuộc bộ môn.</small>
+                    </div>
+                    <div class="form-field">
+                        <label for="supervisor2Id">GVHD thứ hai</label>
+                        <select id="supervisor2Id" th:field="*{supervisor2Id}">
+                            <option value="">-- Không có --</option>
+                            <option th:each="s : ${availableSupervisors}"
+                                    th:value="${s.id}"
+                                    th:text="${s.user.fullName + ' (' + s.lecturerCode + ')'}"></option>
+                        </select>
+                        <small class="form-hint">Tùy chọn, không được trùng GVHD chính.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a class="btn btn-secondary" th:href="@{/topics}">Huỷ</a>
+                <button type="submit" class="btn btn-primary">
+                    <span th:text="${topic != null} ? 'Cập nhật &amp; gửi duyệt' : 'Gửi đề xuất'"></span>
+                </button>
+            </div>
+        </form>
+    </section>
+</main>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
